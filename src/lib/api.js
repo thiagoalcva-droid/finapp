@@ -35,6 +35,11 @@ export async function deleteTransaction(id) {
   if (error) throw error
 }
 
+export async function clearAllTransactions(userId) {
+  const { error } = await supabase.from('transactions').delete().eq('user_id', userId)
+  if (error) throw error
+}
+
 /* CHAT */
 export async function loadChat(userId) {
   const { data, error } = await supabase.from('chat_messages').select('*')

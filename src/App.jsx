@@ -1,9 +1,10 @@
 import { useState, useEffect, useMemo } from 'react'
 import { supabase } from './lib/supabase'
-import { loadTransactions } from './lib/api'
+import { loadTransactions, clearAllTransactions } from './lib/api'
 import Auth          from './pages/Auth'
 import Dashboard     from './pages/Dashboard'
 import ChatExtrato   from './pages/ChatExtrato'
+import Entradas      from './pages/Entradas'
 import Despesas      from './pages/Despesas'
 import GastosAnalise from './pages/GastosAnalise'
 import Metas         from './pages/Metas'
@@ -15,6 +16,7 @@ import Conselhos     from './pages/Conselhos'
 const TABS = [
   { id:'dashboard', icon:'📊', label:'Dashboard'    },
   { id:'chat',      icon:'💬', label:'Chat'         },
+  { id:'entradas',  icon:'💚', label:'Entradas'     },
   { id:'despesas',  icon:'💳', label:'Despesas'     },
   { id:'gastos',    icon:'⚖️',  label:'Análise'      },
   { id:'metas',     icon:'🎯', label:'Metas'        },
@@ -33,6 +35,7 @@ export default function App() {
   const [txns, setTxns]         = useState([])
   const [txnLoad, setTxnLoad]   = useState(false)
   const [month, setMonth]       = useState('todos')
+  const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data:{ session } }) => { setSession(session); setAuthLoad(false) })
@@ -58,6 +61,16 @@ export default function App() {
     return txns.filter(t=>t.date?.startsWith(month))
   },[txns, month])
 
+  const clearAll = async () => {
+    if(!window.confirm('⚠️ Isso vai APAGAR TODAS as suas transações (entradas e saídas) permanentemente. Tem certeza?')) return
+    if(!window.confirm('Última confirmação: apagar tudo mesmo? Esta ação não pode ser desfeita.')) return
+    try {
+      await clearAllTransactions(session.user.id)
+      setTxns([])
+      alert('Todas as transações foram apagadas.')
+    } catch(e){ alert('Erro ao apagar: '+e.message) }
+  }
+
   if(authLoad) return (
     <div style={{ minHeight:'100dvh', display:'flex', alignItems:'center', justifyContent:'center', background:'var(--bg)' }}>
       <div style={{ textAlign:'center' }}>
@@ -73,40 +86,57 @@ export default function App() {
   const name = user.user_metadata?.full_name?.split(' ')[0] || user.email.split('@')[0]
 
   /* Abas que respeitam o filtro de mes */
-  const monthAware = ['dashboard','despesas','gastos','conselhos'].includes(tab)
+  const monthAware = ['dashboard','entradas','despesas','gastos','conselhos'].includes(tab)
 
   return (
     <div style={{ minHeight:'100dvh', background:'var(--bg)', display:'flex', flexDirection:'column' }}>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
 
-      <header style={{ borderBottom:'1px solid var(--border)', background:'var(--bg-card)', padding:'env(safe-area-inset-top) 20px 0', position:'sticky', top:0, zIndex:100 }}>
+      <header style={{ borderBottom:'1px solid var(--border)', background:'var(--bg-card)', padding:'env(safe-area-inset-top) 16px 0', position:'sticky', top:0, zIndex:100 }}>
         <div style={{ maxWidth:960, margin:'0 auto', display:'flex', alignItems:'center', justifyContent:'space-between', height:54 }}>
           <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-            <img src="/icon-192.png" alt="" style={{ width:30, height:30, borderRadius:8 }} />
-            <span style={{ fontSize:15, fontWeight:700, color:'var(--text-1)', letterSpacing:'-0.3px' }}>Casado Investing</span>
-            <span style={{ fontSize:10, padding:'2px 8px', borderRadius:10, background:'rgba(212,175,55,.12)', color:'#d4af37', border:'1px solid rgba(212,175,55,.3)', fontWeight:600 }}>✦ IA</span>
-          </div>
-          <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-            <div style={{ width:28, height:28, borderRadius:'50%', background:'rgba(212,175,55,.12)', border:'1px solid rgba(212,175,55,.3)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:700, color:'#d4af37' }}>
-              {name[0].toUpperCase()}
-            </div>
-            <span style={{ fontSize:13, color:'var(--text-2)' }}>{name}</span>
-            <button onClick={()=>supabase.auth.signOut()} style={{ fontSize:12, padding:'5px 12px', border:'1px solid var(--border-2)', borderRadius:8, cursor:'pointer', background:'none', color:'var(--text-2)', fontFamily:'inherit' }}>
-              Sair
+            <button onClick={()=>setMenuOpen(true)} aria-label="Menu" style={{ width:38, height:38, border:'none', background:'none', cursor:'pointer', display:'flex', flexDirection:'column', justifyContent:'center', gap:4, padding:8, flexShrink:0 }}>
+              <span style={{ width:20, height:2, background:'var(--text-1)', borderRadius:2 }} />
+              <span style={{ width:20, height:2, background:'var(--text-1)', borderRadius:2 }} />
+              <span style={{ width:20, height:2, background:'var(--text-1)', borderRadius:2 }} />
             </button>
+            <img src="/icon-192.png" alt="" style={{ width:28, height:28, borderRadius:8 }} />
+            <span style={{ fontSize:15, fontWeight:700, color:'var(--text-1)', letterSpacing:'-0.3px' }}>Casado Investing</span>
+          </div>
+          <div style={{ width:28, height:28, borderRadius:'50%', background:'rgba(212,175,55,.12)', border:'1px solid rgba(212,175,55,.3)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:700, color:'#d4af37', flexShrink:0 }}>
+            {name[0].toUpperCase()}
           </div>
         </div>
       </header>
 
-      <div style={{ borderBottom:'1px solid var(--border)', background:'var(--bg-card)', padding:'0 20px', overflowX:'auto', flexShrink:0 }}>
-        <div style={{ maxWidth:960, margin:'0 auto', display:'flex', gap:0 }}>
-          {TABS.map(t=>(
-            <button key={t.id} onClick={()=>setTab(t.id)} style={{ padding:'11px 12px', border:'none', background:'none', cursor:'pointer', fontSize:12, fontFamily:'inherit', whiteSpace:'nowrap', marginBottom:-1, fontWeight: tab===t.id ? 600:400, color: tab===t.id ? 'var(--text-1)':'var(--text-3)', borderBottom: tab===t.id ? '2px solid var(--blue)':'2px solid transparent', transition:'color .12s, border-color .12s' }}>
-              {t.icon} {t.label}
-            </button>
-          ))}
+      {menuOpen && (
+        <div onClick={()=>setMenuOpen(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.55)', zIndex:200, animation:'fadeIn .15s ease' }}>
+          <div onClick={e=>e.stopPropagation()} style={{ position:'absolute', top:0, left:0, bottom:0, width:'82%', maxWidth:300, background:'var(--bg-card)', borderRight:'1px solid var(--border)', display:'flex', flexDirection:'column', paddingTop:'env(safe-area-inset-top)', animation:'slideIn .2s ease' }}>
+            <div style={{ padding:'18px 20px', borderBottom:'1px solid var(--border)', display:'flex', alignItems:'center', gap:12 }}>
+              <img src="/icon-192.png" alt="" style={{ width:40, height:40, borderRadius:10 }} />
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ fontSize:15, fontWeight:700, color:'var(--text-1)' }}>Casado Investing</div>
+                <div style={{ fontSize:12, color:'var(--text-2)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>Olá, {name}!</div>
+              </div>
+              <button onClick={()=>setMenuOpen(false)} aria-label="Fechar" style={{ width:30, height:30, border:'none', background:'var(--bg-raised)', borderRadius:8, cursor:'pointer', color:'var(--text-2)', fontSize:16, display:'flex', alignItems:'center', justifyContent:'center' }}>✕</button>
+            </div>
+
+            <nav style={{ flex:1, overflowY:'auto', padding:'8px 0' }}>
+              {TABS.map(t=>(
+                <button key={t.id} onClick={()=>{ setTab(t.id); setMenuOpen(false) }} style={{ width:'100%', textAlign:'left', padding:'13px 20px', border:'none', cursor:'pointer', fontSize:14, fontFamily:'inherit', display:'flex', alignItems:'center', gap:12, background: tab===t.id ? 'var(--blue-bg)':'transparent', color: tab===t.id ? 'var(--blue)':'var(--text-1)', fontWeight: tab===t.id ? 600:400, borderLeft: tab===t.id ? '3px solid var(--blue)':'3px solid transparent' }}>
+                  <span style={{ fontSize:18 }}>{t.icon}</span> {t.label}
+                </button>
+              ))}
+            </nav>
+
+            <div style={{ padding:'12px 20px calc(12px + env(safe-area-inset-bottom))', borderTop:'1px solid var(--border)' }}>
+              <button onClick={()=>supabase.auth.signOut()} style={{ width:'100%', height:42, border:'1px solid var(--border-2)', borderRadius:10, cursor:'pointer', background:'none', color:'var(--text-2)', fontFamily:'inherit', fontSize:13, fontWeight:600 }}>
+                Sair da conta
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
 
       {monthAware && availableMonths.length > 0 && (
         <div style={{ background:'var(--bg)', padding:'12px 20px 0' }}>
@@ -133,7 +163,8 @@ export default function App() {
           <>
             {tab==='dashboard' && <Dashboard txns={filteredTxns} allTxns={txns} />}
             {tab==='chat'      && <ChatExtrato userId={user.id} txns={txns} setTxns={setTxns} />}
-            {tab==='despesas'  && <Despesas txns={filteredTxns} setTxns={setTxns} />}
+            {tab==='entradas'  && <Entradas txns={filteredTxns} setTxns={setTxns} onClearAll={clearAll} />}
+            {tab==='despesas'  && <Despesas txns={filteredTxns} setTxns={setTxns} onClearAll={clearAll} />}
             {tab==='gastos'    && <GastosAnalise txns={filteredTxns} setTxns={setTxns} />}
             {tab==='metas'     && <Metas userId={user.id} txns={txns} />}
             {tab==='investir'  && <Investir userId={user.id} txns={txns} />}

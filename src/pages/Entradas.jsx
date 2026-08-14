@@ -1,34 +1,23 @@
 import { useMemo, useState } from 'react'
 import { Edit3, Trash2, Download, X } from 'lucide-react'
 import { updateTransaction, deleteTransaction } from '../lib/api'
-import { fmt, pct, CAT, CatIcon, Badge, Card, CardTitle } from '../components/shared'
+import { fmt, pct, CAT, CatIcon, Card, CardTitle } from '../components/shared'
 
 const CATS = Object.keys(CAT)
 
-export default function Despesas({ txns, setTxns, onClearAll }) {
-  const [filter, setFilter]   = useState('todos')
+export default function Entradas({ txns, setTxns, onClearAll }) {
   const [editing, setEditing] = useState(null)
   const [form, setForm]       = useState({})
 
-  const totalOut = txns.filter(t=>t.type==='out').reduce((s,t)=>s+t.amt,0)
+  const totalIn = txns.filter(t=>t.type==='in').reduce((s,t)=>s+t.amt,0)
 
   const byCat = useMemo(() => {
     const map = {}
-    txns.filter(t=>t.type==='out').forEach(t=>{
-      if(!map[t.cat]) map[t.cat]={ amt:0, hasUnnec:false }
-      map[t.cat].amt += t.amt
-      if(!t.nec) map[t.cat].hasUnnec = true
-    })
-    return Object.entries(map).sort((a,b)=>b[1].amt-a[1].amt).map(([cat,v])=>({cat,...v}))
+    txns.filter(t=>t.type==='in').forEach(t=>{ map[t.cat]=(map[t.cat]||0)+t.amt })
+    return Object.entries(map).sort((a,b)=>b[1]-a[1]).map(([cat,amt])=>({cat,amt}))
   },[txns])
 
-  const filtered = byCat.filter(c=>{
-    if(filter==='nec')   return !c.hasUnnec
-    if(filter==='unnec') return c.hasUnnec
-    return true
-  })
-
-  const outTxns = txns.filter(t=>t.type==='out').slice().sort((a,b)=>new Date(b.date)-new Date(a.date))
+  const inTxns = txns.filter(t=>t.type==='in').slice().sort((a,b)=>new Date(b.date)-new Date(a.date))
 
   const startEdit = (t) => { setEditing(t.id); setForm({ desc:t.desc, amt:t.amt, cat:t.cat, date:t.date }) }
 
@@ -39,66 +28,65 @@ export default function Despesas({ txns, setTxns, onClearAll }) {
   }
 
   const remove = async (id) => {
-    if(!window.confirm('Excluir esta transação?')) return
+    if(!window.confirm('Excluir esta entrada?')) return
     await deleteTransaction(id).catch(e=>alert(e.message))
     setTxns(prev=>prev.filter(t=>t.id!==id))
   }
 
   const exportCSV = () => {
-    const rows = [['Data','Descrição','Valor','Tipo','Categoria','Fixo','Necessário']]
-    txns.forEach(t=>rows.push([t.date, t.desc, t.amt, t.type==='in'?'Entrada':'Saída', t.cat, t.fixed?'Sim':'Não', t.nec?'Sim':'Não']))
+    const rows = [['Data','Descrição','Valor','Categoria']]
+    inTxns.forEach(t=>rows.push([t.date, t.desc, t.amt, t.cat]))
     const csv  = rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(';')).join('\n')
     const blob = new Blob(['\ufeff'+csv], { type:'text/csv;charset=utf-8' })
     const a    = document.createElement('a')
     a.href     = URL.createObjectURL(blob)
-    a.download = `casado-investing-${new Date().toISOString().slice(0,10)}.csv`
+    a.download = `entradas-${new Date().toISOString().slice(0,10)}.csv`
     a.click()
   }
 
-  const filters = [['todos','Todas'],['nec','Necessárias'],['unnec','Com supérfluos']]
-  const inp = { width:'100%', height:36, padding:'0 10px', borderRadius:8, border:'1px solid var(--border-2)', background:'var(--bg-input)', color:'var(--text-1)', fontSize:12, marginBottom:8 }
+  const inp = { width:'100%', height:36, padding:'0 10px', borderRadius:8, border:'1px solid var(--border-2)', background:'var(--bg-input)', color:'var(--text-1)', fontSize:16, marginBottom:8 }
 
   return (
     <div>
       <div style={{ display:'flex', gap:6, marginBottom:'1rem', flexWrap:'wrap', alignItems:'center' }}>
-        {filters.map(([k,l])=>(
-          <button key={k} onClick={()=>setFilter(k)} style={{ fontSize:11, padding:'6px 14px', borderRadius:20, border:'none', cursor:'pointer', fontFamily:'inherit', fontWeight:600, background: filter===k ? 'var(--blue)':'var(--bg-raised)', color: filter===k ? '#fff':'var(--text-2)' }}>
-            {l}
-          </button>
-        ))}
+        <div style={{ background:'var(--green-bg)', border:'1px solid var(--green-border)', borderRadius:20, padding:'6px 16px', fontSize:13, fontWeight:600, color:'var(--green)' }}>
+          Total recebido: {fmt(totalIn)}
+        </div>
         <button onClick={exportCSV} style={{ fontSize:11, padding:'6px 14px', borderRadius:20, border:'1px solid var(--border-2)', cursor:'pointer', fontFamily:'inherit', fontWeight:600, background:'none', color:'var(--text-2)', display:'flex', alignItems:'center', gap:5, marginLeft:'auto' }}>
           <Download size={11}/> Exportar CSV
         </button>
       </div>
 
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(130px,1fr))', gap:8, marginBottom:'1rem' }}>
-        {filtered.slice(0,8).map(c=>{
-          const cfg = CAT[c.cat]||CAT['Outros']
-          const p   = pct(c.amt,totalOut)
-          return (
-            <div key={c.cat} style={{ background:'var(--bg-raised)', borderRadius:10, padding:'12px 14px', border:'1px solid var(--border)' }}>
-              <div style={{ fontSize:20, marginBottom:8 }}>{cfg.icon}</div>
-              <div style={{ fontSize:12, fontWeight:600, color:'var(--text-1)' }}>{c.cat}</div>
-              <div style={{ fontSize:15, fontWeight:600, fontFamily:"'JetBrains Mono',monospace", color:'var(--text-1)', marginTop:3 }}>{fmt(c.amt)}</div>
-              <div style={{ fontSize:10, color:'var(--text-3)', marginTop:3 }}>{p}% das saídas</div>
-              <div style={{ height:3, background:'var(--bg-card)', borderRadius:2, marginTop:8, overflow:'hidden' }}>
-                <div style={{ height:'100%', background:cfg.color, width:`${p}%` }} />
+      {byCat.length > 0 && (
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(130px,1fr))', gap:8, marginBottom:'1rem' }}>
+          {byCat.slice(0,6).map(c=>{
+            const cfg = CAT[c.cat]||CAT['Renda']
+            const p   = pct(c.amt,totalIn)
+            return (
+              <div key={c.cat} style={{ background:'var(--bg-raised)', borderRadius:10, padding:'12px 14px', border:'1px solid var(--border)' }}>
+                <div style={{ fontSize:20, marginBottom:8 }}>{cfg.icon}</div>
+                <div style={{ fontSize:12, fontWeight:600, color:'var(--text-1)' }}>{c.cat}</div>
+                <div style={{ fontSize:15, fontWeight:600, fontFamily:"'JetBrains Mono',monospace", color:'var(--green)', marginTop:3 }}>{fmt(c.amt)}</div>
+                <div style={{ fontSize:10, color:'var(--text-3)', marginTop:3 }}>{p}% das entradas</div>
+                <div style={{ height:3, background:'var(--bg-card)', borderRadius:2, marginTop:8, overflow:'hidden' }}>
+                  <div style={{ height:'100%', background:cfg.color, width:`${p}%` }} />
+                </div>
               </div>
-            </div>
-          )
-        })}
-      </div>
+            )
+          })}
+        </div>
+      )}
 
       <Card>
-        <CardTitle>Todas as transações ({outTxns.length})</CardTitle>
-        {outTxns.length===0 ? (
+        <CardTitle>Todas as entradas ({inTxns.length})</CardTitle>
+        {inTxns.length===0 ? (
           <div style={{ textAlign:'center', padding:'2rem', color:'var(--text-3)', fontSize:13 }}>
-            Nenhuma transação. Use o Chat para adicionar.
+            Nenhuma entrada ainda. Use o Chat para registrar recebimentos.
           </div>
-        ) : outTxns.map(t=>(
+        ) : inTxns.map(t=>(
           <div key={t.id}>
             {editing===t.id ? (
-              <div style={{ padding:'10px 0', borderBottom:'1px solid var(--border)', background:'var(--bg-raised)', borderRadius:8, padding:'12px', marginBottom:6 }}>
+              <div style={{ background:'var(--bg-raised)', borderRadius:8, padding:'12px', marginBottom:6 }}>
                 <input style={inp} type="text" value={form.desc} onChange={e=>setForm(p=>({...p,desc:e.target.value}))} placeholder="Descrição" />
                 <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8 }}>
                   <input style={inp} type="number" value={form.amt} onChange={e=>setForm(p=>({...p,amt:e.target.value}))} step="0.01" min="0" />
@@ -119,7 +107,7 @@ export default function Despesas({ txns, setTxns, onClearAll }) {
                   <div style={{ fontSize:12, fontWeight:500, color:'var(--text-1)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{t.desc}</div>
                   <div style={{ fontSize:10, color:'var(--text-3)', marginTop:2 }}>{t.date?.slice(5)?.replace('-','/')} · {t.cat}</div>
                 </div>
-                <span style={{ fontSize:12, fontWeight:600, fontFamily:"'JetBrains Mono',monospace", color:'var(--red)', flexShrink:0 }}>-{fmt(t.amt)}</span>
+                <span style={{ fontSize:12, fontWeight:600, fontFamily:"'JetBrains Mono',monospace", color:'var(--green)', flexShrink:0 }}>+{fmt(t.amt)}</span>
                 <div style={{ display:'flex', gap:5, flexShrink:0 }}>
                   <button onClick={()=>startEdit(t)} style={{ width:28, height:28, border:'none', background:'var(--blue-bg)', borderRadius:7, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
                     <Edit3 size={11} color="var(--blue)" />
