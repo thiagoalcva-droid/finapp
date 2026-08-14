@@ -8,7 +8,6 @@ export default function ChatExtrato({ userId, txns, setTxns }) {
   const [msgs, setMsgs]         = useState([])
   const [input, setInput]       = useState('')
   const [loading, setLoading]   = useState(false)
-  const [pending, setPending]   = useState([])
   const [histLoad, setHistLoad] = useState(true)
   const [recording, setRecording] = useState(false)
   const chatRef = useRef(null)
@@ -18,26 +17,48 @@ export default function ChatExtrato({ userId, txns, setTxns }) {
   useEffect(() => {
     loadChat(userId).then(h => {
       if (h.length > 0) setMsgs(h)
-      else setMsgs([{ role:'ai', text:'Olá! Você pode:\n\n📋 Colar seu extrato bancário\n📷 Enviar FOTO do extrato (clique no ícone de imagem)\n🎤 Falar as transações (clique no microfone)\n✍️ Escrever livremente: "paguei aluguel 1500 ontem"\n\nEu identifico tudo, categorizo e confirmo antes de salvar.' }])
+      else setMsgs([{ role:'ai', text:'Olá! Manda suas transações que eu registro na hora:\n\n📋 Cola o extrato bancário\n📷 Envia FOTO do extrato\n🎤 Fala as transações\n✍️ Escreve: "gastei 50 no posto, recebi 500 de PIX"\n\nRegistro tudo automaticamente no seu painel.' }])
       setHistLoad(false)
     })
   }, [userId])
 
   useEffect(() => {
     if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight
-  }, [msgs, loading, pending])
+  }, [msgs, loading])
 
-  const addMsg = async (role, text) => {
-    setMsgs(prev => [...prev, { role, text }])
+  const addMsg = async (role, text, image) => {
+    setMsgs(prev => [...prev, { role, text, image }])
     await saveMsg(userId, role, text).catch(() => {})
   }
 
-  const handleFound = async (found) => {
+  /* Salva automaticamente e resume o que foi feito */
+  const registrar = async (found) => {
     if (found.length === 0) {
-      await addMsg('ai','Não identifiquei transações. Tente de novo com mais detalhes.')
-    } else {
-      setPending(found.map(t => ({ ...t, id: crypto.randomUUID() })))
-      await addMsg('ai', `Encontrei ${found.length} transação(ões). Revise e confirme abaixo.`)
+      await addMsg('ai', 'Não consegui identificar nenhuma transação. Pode tentar de novo? Me diz o valor e o que foi, tipo "gastei 50 no mercado".')
+      return
+    }
+    try {
+      const saved = await insertTransactions(userId, found)
+      setTxns(prev => [...prev, ...saved])
+
+      const entradas = saved.filter(t => t.type === 'in')
+      const saidas   = saved.filter(t => t.type === 'out')
+      const totalIn  = entradas.reduce((s,t)=>s+t.amt,0)
+      const totalOut = saidas.reduce((s,t)=>s+t.amt,0)
+
+      let resumo = `✅ Registrei ${saved.length} ${saved.length===1?'transação':'transações'}:\n\n`
+      saved.forEach(t => {
+        const sinal = t.type==='in' ? '+' : '−'
+        resumo += `${CAT_ICON(t.cat)} ${t.desc} — ${sinal}${fmt(t.amt)}  (${t.cat})\n`
+      })
+      resumo += `\n`
+      if (totalIn > 0)  resumo += `💰 Entradas: ${fmt(totalIn)}\n`
+      if (totalOut > 0) resumo += `💸 Saídas: ${fmt(totalOut)}\n`
+      resumo += `\nJá está tudo no seu painel!`
+
+      await addMsg('ai', resumo)
+    } catch (e) {
+      await addMsg('ai', `Ops, deu um erro ao salvar: ${e.message}. Tenta de novo?`)
     }
   }
 
@@ -48,11 +69,11 @@ export default function ChatExtrato({ userId, txns, setTxns }) {
     await addMsg('user', txt)
     setLoading(true)
     try {
-      const raw   = await callClaude(EXTRATO_SYSTEM, [{ role:'user', content:txt }], 1200)
+      const raw   = await callClaude(EXTRATO_SYSTEM, [{ role:'user', content:txt }], 1500)
       const clean = raw.replace(/```json|```/g,'').trim()
-      await handleFound(JSON.parse(clean).transactions || [])
+      await registrar(JSON.parse(clean).transactions || [])
     } catch (e) {
-      await addMsg('ai', `Erro: ${e.message}`)
+      await addMsg('ai', `Ops, deu um erro: ${e.message}. Tenta de novo?`)
     }
     setLoading(false)
   }
@@ -62,21 +83,22 @@ export default function ChatExtrato({ userId, txns, setTxns }) {
     const file = e.target.files?.[0]
     if (!file) return
     e.target.value = ''
-    if (file.size > 5*1024*1024) { await addMsg('ai','Imagem muito grande (máx 5 MB). Tire uma foto menor.'); return }
-    await addMsg('user', `📷 Enviou foto: ${file.name}`)
+    if (file.size > 5*1024*1024) { await addMsg('ai','Imagem muito grande (máx 5 MB). Tira uma foto menor.'); return }
     setLoading(true)
     try {
-      const base64 = await new Promise((res, rej) => {
+      const dataUrl = await new Promise((res, rej) => {
         const r = new FileReader()
-        r.onload  = () => res(r.result.split(',')[1])
+        r.onload  = () => res(r.result)
         r.onerror = rej
         r.readAsDataURL(file)
       })
-      const raw   = await callClaudeVision(EXTRATO_SYSTEM, base64, file.type, 'Extraia TODAS as transações desta imagem de extrato bancário. Responda apenas com o JSON.', 1500)
+      const base64 = dataUrl.split(',')[1]
+      await addMsg('user', '', dataUrl)
+      const raw   = await callClaudeVision(EXTRATO_SYSTEM, base64, file.type, 'Extraia TODAS as transações desta imagem de extrato bancário. Responda apenas com o JSON.', 2000)
       const clean = raw.replace(/```json|```/g,'').trim()
-      await handleFound(JSON.parse(clean).transactions || [])
+      await registrar(JSON.parse(clean).transactions || [])
     } catch (err) {
-      await addMsg('ai', `Erro ao ler a imagem: ${err.message}`)
+      await addMsg('ai', `Não consegui ler a imagem: ${err.message}. Tenta uma foto mais nítida?`)
     }
     setLoading(false)
   }
@@ -84,7 +106,7 @@ export default function ChatExtrato({ userId, txns, setTxns }) {
   /* ── ÁUDIO (Web Speech API) ── */
   const toggleAudio = () => {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition
-    if (!SR) { addMsg('ai','Seu navegador não suporta reconhecimento de voz. Use o Chrome.'); return }
+    if (!SR) { addMsg('ai','Seu navegador não suporta reconhecimento de voz. Usa o Chrome.'); return }
     if (recording) { recRef.current?.stop(); return }
     const rec = new SR()
     rec.lang = 'pt-BR'
@@ -95,23 +117,12 @@ export default function ChatExtrato({ userId, txns, setTxns }) {
       setRecording(false)
       process(text)
     }
-    rec.onerror = () => { setRecording(false); addMsg('ai','Não consegui ouvir. Tente de novo em um lugar mais silencioso.') }
+    rec.onerror = () => { setRecording(false); addMsg('ai','Não consegui ouvir. Tenta de novo num lugar mais silencioso.') }
     rec.onend   = () => setRecording(false)
     recRef.current = rec
     setRecording(true)
     rec.start()
   }
-
-  const confirm = async () => {
-    try {
-      const saved = await insertTransactions(userId, pending)
-      setTxns(prev => [...prev, ...saved])
-      setPending([])
-      await addMsg('ai', `✅ ${saved.length} transação(ões) salvas!`)
-    } catch (e) { await addMsg('ai', `Erro ao salvar: ${e.message}`) }
-  }
-
-  const cancel = () => { setPending([]); addMsg('ai', 'Cancelado.') }
 
   const EXAMPLES = [
     { label: 'Extrato exemplo',  text: '14/08 PIX IFOOD*12345 R$ 47,80\n14/08 DEB POSTO IPIRANGA R$ 180,00\n10/08 CRED SALARIO EMPRESA LTDA R$ 8.500,00\n12/08 DEB SPOTIFY R$ 21,90' },
@@ -123,44 +134,15 @@ export default function ChatExtrato({ userId, txns, setTxns }) {
 
   return (
     <div>
-      <Note>Cole o extrato, envie uma <strong>foto</strong> 📷 ou <strong>fale</strong> 🎤 as transações. A IA identifica, categoriza e pede confirmação.</Note>
+      <Note>Manda o extrato (texto, <strong>foto</strong> 📷 ou <strong>áudio</strong> 🎤) e eu registro tudo na hora, direto no seu painel. Sem burocracia.</Note>
 
-      <div ref={chatRef} style={{ background:'var(--bg-raised)', borderRadius:12, padding:'1rem', minHeight:260, maxHeight:400, overflowY:'auto', marginBottom:12, display:'flex', flexDirection:'column', gap:10 }}>
+      <div ref={chatRef} style={{ background:'var(--bg-raised)', borderRadius:12, padding:'1rem', minHeight:260, maxHeight:420, overflowY:'auto', marginBottom:12, display:'flex', flexDirection:'column', gap:10 }}>
         {msgs.map((m,i) => <Bubble key={i} msg={m} />)}
-
-        {pending.length > 0 && (
-          <div style={{ background:'var(--bg-card)', border:'1px solid var(--border-2)', borderRadius:10, padding:12, animation:'fadeIn .2s ease' }}>
-            <div style={{ fontSize:12, fontWeight:600, color:'var(--text-2)', marginBottom:10, textTransform:'uppercase', letterSpacing:'.04em' }}>
-              {pending.length} transação(ões) identificadas
-            </div>
-            {pending.map((t,j) => (
-              <div key={j} style={{ display:'flex', alignItems:'center', gap:8, padding:'6px 0', borderBottom: j<pending.length-1 ? '1px solid var(--border)':undefined }}>
-                <CatIcon cat={t.cat} size={26} />
-                <div style={{ flex:1, minWidth:0 }}>
-                  <div style={{ fontSize:12, fontWeight:500, color:'var(--text-1)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{t.desc}</div>
-                  <div style={{ fontSize:10, color:'var(--text-3)', marginTop:1 }}>{t.cat} · {t.nec ? 'Necessário':'Supérfluo'} · {t.fixed ? 'Fixo':'Variável'}</div>
-                </div>
-                <span style={{ fontSize:12, fontWeight:600, fontFamily:"'JetBrains Mono',monospace", color: t.type==='in' ? 'var(--green)':'var(--red)', flexShrink:0 }}>
-                  {t.type==='in' ? '+':'-'}{fmt(t.amt)}
-                </span>
-              </div>
-            ))}
-            <div style={{ display:'flex', gap:8, marginTop:12 }}>
-              <button onClick={confirm} style={{ flex:1, height:38, background:'var(--blue)', color:'#fff', border:'none', borderRadius:8, fontSize:13, fontWeight:600, cursor:'pointer' }}>
-                ✓ Confirmar e salvar
-              </button>
-              <button onClick={cancel} style={{ height:38, padding:'0 14px', background:'var(--bg-raised)', color:'var(--text-2)', border:'1px solid var(--border-2)', borderRadius:8, fontSize:13, cursor:'pointer' }}>
-                Cancelar
-              </button>
-            </div>
-          </div>
-        )}
-
-        {loading && <Loader label="Processando com IA..." />}
+        {loading && <Loader label="Lendo e registrando..." />}
         {recording && (
           <div style={{ display:'flex', alignItems:'center', gap:8, color:'var(--red)', fontSize:13 }}>
             <span style={{ width:8, height:8, borderRadius:'50%', background:'var(--red)', animation:'pulse-dot 1s infinite' }} />
-            Ouvindo... fale as transações e pare de falar quando terminar.
+            Ouvindo... fala as transações e para quando terminar.
           </div>
         )}
       </div>
@@ -178,8 +160,8 @@ export default function ChatExtrato({ userId, txns, setTxns }) {
         </button>
         <textarea value={input} onChange={e=>setInput(e.target.value)}
           onKeyDown={e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();process()} }}
-          placeholder="Cole o extrato ou descreva as transações..."
-          style={{ flex:1, resize:'none', border:'1px solid var(--border-2)', borderRadius:8, padding:'9px 12px', fontSize:13, background:'var(--bg-input)', color:'var(--text-1)', fontFamily:'inherit', height:42 }} />
+          placeholder="Cola o extrato ou descreve as transações..."
+          style={{ flex:1, resize:'none', border:'1px solid var(--border-2)', borderRadius:8, padding:'9px 12px', fontSize:16, background:'var(--bg-input)', color:'var(--text-1)', fontFamily:'inherit', height:42 }} />
         <button onClick={()=>process()} disabled={loading}
           style={{ height:38, padding:'0 18px', background:'var(--blue)', color:'#fff', border:'none', borderRadius:8, fontSize:13, cursor:'pointer', fontWeight:600, opacity:loading?.6:1, flexShrink:0 }}>
           Enviar
@@ -196,4 +178,10 @@ export default function ChatExtrato({ userId, txns, setTxns }) {
       </div>
     </div>
   )
+}
+
+/* Helper de ícone (evita import circular) */
+function CAT_ICON(cat) {
+  const map = { 'Renda':'💰','Renda Extra':'💵','Moradia':'🏠','Saúde':'❤️','Serviços':'📡','Assinaturas':'📱','Alimentação':'🛒','Delivery':'🍔','Gasolina':'⛽','Transporte':'🚌','Vestuário':'👗','Lazer':'🎉','Outros':'📦' }
+  return map[cat] || '📦'
 }

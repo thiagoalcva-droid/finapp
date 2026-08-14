@@ -80,9 +80,14 @@ export function Bubble({ msg }) {
   return (
     <div style={{ display:'flex', flexDirection:'column', alignItems: isUser ?'flex-end':'flex-start', gap:3, animation:'fadeIn .2s ease' }}>
       <span style={{ fontSize:11, color:'var(--text-3)', padding:'0 4px' }}>{isUser ? 'Você':'Casado IA'}</span>
-      <div style={{ padding:'10px 14px', borderRadius:12, fontSize:13, lineHeight:1.6, maxWidth:'88%', background: isUser ? 'var(--blue-dark)':'var(--bg-raised)', border: isUser ? 'none':'1px solid var(--border-2)', color:'var(--text-1)' }}>
-        {msg.text.split('\n').map((l,i) => <span key={i} style={{ display:'block' }}>{l||'\u00a0'}</span>)}
-      </div>
+      {msg.image && (
+        <img src={msg.image} alt="Extrato enviado" style={{ maxWidth:'70%', borderRadius:12, border:'1px solid var(--border-2)', marginBottom: msg.text ? 4:0 }} />
+      )}
+      {msg.text && (
+        <div style={{ padding:'10px 14px', borderRadius:12, fontSize:13, lineHeight:1.6, maxWidth:'88%', background: isUser ? 'var(--blue-dark)':'var(--bg-raised)', border: isUser ? 'none':'1px solid var(--border-2)', color:'var(--text-1)' }}>
+          {msg.text.split('\n').map((l,i) => <span key={i} style={{ display:'block' }}>{l||'\u00a0'}</span>)}
+        </div>
+      )}
     </div>
   )
 }
