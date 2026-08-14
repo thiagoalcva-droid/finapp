@@ -1,0 +1,81 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #090909;
+  --bg-card:   #111215;
+  --bg-raised: #16181E;
+  --bg-input:  #1A1C22;
+
+  --text-1: #F0F2F8;
+  --text-2: #8C8FA3;
+  --text-3: #545668;
+
+  --border:   rgba(255,255,255,0.07);
+  --border-2: rgba(255,255,255,0.13);
+  --border-3: rgba(255,255,255,0.22);
+
+  --blue:      #3B82F6;
+  --blue-dark: #2563EB;
+  --blue-glow: rgba(59,130,246,0.25);
+  --blue-bg:   rgba(59,130,246,0.10);
+  --blue-border: rgba(59,130,246,0.30);
+
+  --green:       #34D399;
+  --green-bg:    rgba(52,211,153,0.10);
+  --green-border:rgba(52,211,153,0.25);
+
+  --red:        #F87171;
+  --red-bg:     rgba(248,113,113,0.10);
+  --red-border: rgba(248,113,113,0.25);
+
+  --amber:        #FBBF24;
+  --amber-bg:     rgba(251,191,36,0.10);
+  --amber-border: rgba(251,191,36,0.25);
+
+  --purple:        #A78BFA;
+  --purple-bg:     rgba(167,139,250,0.10);
+
+  --radius: 8px;
+  --radius-lg: 14px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text-1);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100dvh;
+}
+
+input, textarea, button, select { font-family: inherit; }
+
+input, textarea, select {
+  background: var(--bg-input);
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius);
+  color: var(--text-1);
+  font-size: 14px;
+  transition: border-color .15s, box-shadow .15s;
+  outline: none;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px var(--blue-glow);
+}
+input::placeholder, textarea::placeholder { color: var(--text-3); }
+
+button { cursor: pointer; outline: none; }
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-3); border-radius: 4px; }
+
+@keyframes pulse-dot { 0%,80%,100%{opacity:.2} 40%{opacity:1} }
+@keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:none} }
+@keyframes ring { 0%{transform:scale(1)} 50%{transform:scale(1.15)} 100%{transform:scale(1)} }
