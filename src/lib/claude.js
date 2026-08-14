@@ -6,7 +6,7 @@ const PROXY_URL  = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/claude-pro
 /* Se VITE_ANTHROPIC_KEY existir -> chamada direta (modo dev).
    Se nao existir -> usa o proxy seguro (Edge Function). */
 export async function callClaude(system, messages, maxTokens = 800) {
-  const payload = { model: 'claude-sonnet-4-20250514', max_tokens: maxTokens, system, messages }
+  const payload = { model: 'claude-sonnet-4-6', max_tokens: maxTokens, system, messages }
 
   let res
   if (DIRECT_KEY) {
