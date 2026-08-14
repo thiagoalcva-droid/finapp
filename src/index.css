@@ -3,24 +3,26 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:        #090909;
-  --bg-card:   #111215;
-  --bg-raised: #16181E;
-  --bg-input:  #1A1C22;
+  --bg:        #0A0F1C;
+  --bg-card:   #101728;
+  --bg-raised: #162034;
+  --bg-input:  #1B2740;
 
   --text-1: #F0F2F8;
-  --text-2: #8C8FA3;
-  --text-3: #545668;
+  --text-2: #8F96AB;
+  --text-3: #565E75;
 
   --border:   rgba(255,255,255,0.07);
   --border-2: rgba(255,255,255,0.13);
   --border-3: rgba(255,255,255,0.22);
 
-  --blue:      #3B82F6;
-  --blue-dark: #2563EB;
-  --blue-glow: rgba(59,130,246,0.25);
-  --blue-bg:   rgba(59,130,246,0.10);
-  --blue-border: rgba(59,130,246,0.30);
+  --blue:      #D4B04A;
+  --blue-dark: #B8952E;
+  --blue-glow: rgba(212,176,74,0.25);
+  --blue-bg:   rgba(212,176,74,0.10);
+  --blue-border: rgba(212,176,74,0.30);
+
+  --itau-navy: #16437E;
 
   --green:       #34D399;
   --green-bg:    rgba(52,211,153,0.10);

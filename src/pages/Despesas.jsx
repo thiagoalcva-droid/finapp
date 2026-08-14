@@ -62,7 +62,7 @@ export default function Despesas({ txns, setTxns, onClearAll }) {
     <div>
       <div style={{ display:'flex', gap:6, marginBottom:'1rem', flexWrap:'wrap', alignItems:'center' }}>
         {filters.map(([k,l])=>(
-          <button key={k} onClick={()=>setFilter(k)} style={{ fontSize:11, padding:'6px 14px', borderRadius:20, border:'none', cursor:'pointer', fontFamily:'inherit', fontWeight:600, background: filter===k ? 'var(--blue)':'var(--bg-raised)', color: filter===k ? '#fff':'var(--text-2)' }}>
+          <button key={k} onClick={()=>setFilter(k)} style={{ fontSize:11, padding:'6px 14px', borderRadius:20, border:'none', cursor:'pointer', fontFamily:'inherit', fontWeight:600, background: filter===k ? 'var(--blue)':'var(--bg-raised)', color: filter===k ? '#131B2E':'var(--text-2)' }}>
             {l}
           </button>
         ))}
@@ -108,7 +108,7 @@ export default function Despesas({ txns, setTxns, onClearAll }) {
                   <input style={inp} type="date" value={form.date} onChange={e=>setForm(p=>({...p,date:e.target.value}))} />
                 </div>
                 <div style={{ display:'flex', gap:8 }}>
-                  <button onClick={saveEdit} style={{ flex:1, height:34, background:'var(--blue)', color:'#fff', border:'none', borderRadius:8, fontSize:12, fontWeight:600, cursor:'pointer' }}>✓ Salvar</button>
+                  <button onClick={saveEdit} style={{ flex:1, height:34, background:'var(--blue)', color:'#131B2E', border:'none', borderRadius:8, fontSize:12, fontWeight:600, cursor:'pointer' }}>✓ Salvar</button>
                   <button onClick={()=>setEditing(null)} style={{ height:34, padding:'0 12px', background:'var(--bg-card)', color:'var(--text-2)', border:'1px solid var(--border-2)', borderRadius:8, fontSize:12, cursor:'pointer' }}><X size={12}/></button>
                 </div>
               </div>

@@ -53,13 +53,24 @@ export async function callClaudeDoc(system, pdfBase64, promptText, maxTokens = 3
 }
 
 export const EXTRATO_SYSTEM = `
-Voce e um processador de extratos bancarios e transacoes financeiras em portugues brasileiro.
+Voce e o assistente de um app financeiro em portugues brasileiro. A mensagem do usuario pode conter TRANSACOES financeiras e/ou COMPROMISSOS de agenda.
 
 REGRAS ABSOLUTAS:
 1. Responda APENAS com JSON valido - sem markdown, sem texto extra.
 2. Extraia CADA transacao individualmente.
 3. Agrupe transacoes do mesmo estabelecimento no mesmo dia.
 4. NUNCA use a categoria "Outros". SEMPRE encaixe em uma categoria que faca sentido pelo contexto.
+5. Se a mensagem mencionar compromisso, reuniao, consulta, encontro, evento com data/hora, extraia como event.
+
+FORMATO DA RESPOSTA:
+{"transactions":[{"date":"YYYY-MM-DD","desc":"descricao limpa","amt":numero,"type":"in|out","cat":"categoria","nec":bool,"fixed":bool}],"events":[{"title":"titulo do compromisso","event_date":"YYYY-MM-DDTHH:MM:00","reminder_minutes":180}]}
+
+Se nao houver transacoes, "transactions":[]. Se nao houver compromissos, "events":[].
+
+REGRAS DE EVENTS:
+- "amanha" = calcule a partir de ${new Date().toISOString().slice(0,10)} (hoje). Dias da semana: proximo dia correspondente.
+- Se o usuario NAO disser hora, use 09:00.
+- reminder_minutes: se o usuario pedir aviso "1 dia antes" use 1440, "3 horas antes" use 180. Se nao especificar, use 180.
 
 MAPEAMENTO DE CATEGORIAS:
 - SALARIO, PGTO, HOLERITE = Renda | FREELANCE, HONORARIO, servicos prestados = Renda Extra
@@ -91,8 +102,6 @@ CLASSIFICACAO:
 - fixed=true: recorrente mensal (aluguel, assinaturas, planos, salario, financiamento)
 - type: "in" (credito/recebido) ou "out" (debito/pago)
 - date padrao: ${new Date().toISOString().slice(0,10)}
-
-JSON: {"transactions":[{"date":"YYYY-MM-DD","desc":"descricao limpa","amt":numero,"type":"in|out","cat":"categoria","nec":bool,"fixed":bool}]}
 `
 
 export const CONSULTOR_SYSTEM = (d) => `

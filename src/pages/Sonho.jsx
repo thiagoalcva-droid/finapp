@@ -71,7 +71,7 @@ export default function Sonho({ userId }) {
     if (result.erro) return (
       <div style={{ textAlign:'center', padding:'2rem' }}>
         <div style={{ color:'var(--red)', fontSize:14, marginBottom:16 }}>{result.erro}</div>
-        <button onClick={refazer} style={{ height:42, padding:'0 20px', background:'var(--blue)', color:'#fff', border:'none', borderRadius:10, fontSize:13, fontWeight:600, cursor:'pointer' }}>Tentar de novo</button>
+        <button onClick={refazer} style={{ height:42, padding:'0 20px', background:'var(--blue)', color:'#131B2E', border:'none', borderRadius:10, fontSize:13, fontWeight:600, cursor:'pointer' }}>Tentar de novo</button>
       </div>
     )
     const anos = Math.floor(result.meses/12)

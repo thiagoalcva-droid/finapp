@@ -121,7 +121,7 @@ export default function Agenda({ userId }) {
               onKeyDown={e=>{ if(e.key==='Enter') sendChat() }}
               placeholder="Descreva o compromisso..."
               style={{ ...inp, marginBottom:0, flex:1, height:36 }} />
-            <button onClick={sendChat} style={{ height:36, padding:'0 14px', background:'var(--blue)', color:'#fff', border:'none', borderRadius:8, fontSize:13, cursor:'pointer', fontWeight:600 }}>↗</button>
+            <button onClick={sendChat} style={{ height:36, padding:'0 14px', background:'var(--blue)', color:'#131B2E', border:'none', borderRadius:8, fontSize:13, cursor:'pointer', fontWeight:600 }}>↗</button>
           </div>
         </Card>
 
@@ -140,7 +140,7 @@ export default function Agenda({ userId }) {
                 {MINUTES.map(m=><option key={m} value={m}>Alertar {m} minutos antes</option>)}
               </select>
               <div style={{ display:'flex', gap:8 }}>
-                <button type="submit" disabled={saving} style={{ flex:1, height:38, background:'var(--blue)', color:'#fff', border:'none', borderRadius:8, fontSize:13, fontWeight:600, cursor:'pointer' }}>
+                <button type="submit" disabled={saving} style={{ flex:1, height:38, background:'var(--blue)', color:'#131B2E', border:'none', borderRadius:8, fontSize:13, fontWeight:600, cursor:'pointer' }}>
                   {saving ? 'Salvando...':'Salvar'}
                 </button>
                 <button type="button" onClick={()=>setShowForm(false)} style={{ height:38, padding:'0 14px', background:'var(--bg-raised)', color:'var(--text-2)', border:'1px solid var(--border-2)', borderRadius:8, fontSize:13, cursor:'pointer' }}>

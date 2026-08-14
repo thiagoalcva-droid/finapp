@@ -59,7 +59,7 @@ export default function Metas({ userId, txns }) {
       <Note>Crie metas financeiras e acompanhe o progresso. Adicione dinheiro conforme for guardando — a barra atualiza em tempo real.</Note>
 
       <button onClick={()=>setShowForm(!showForm)}
-        style={{ width:'100%', height:42, marginBottom:'1rem', background: showForm?'var(--bg-raised)':'var(--blue)', color: showForm?'var(--text-2)':'#fff', border: showForm?'1px solid var(--border-2)':'none', borderRadius:10, fontSize:13, fontWeight:600, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:6, fontFamily:'inherit' }}>
+        style={{ width:'100%', height:42, marginBottom:'1rem', background: showForm?'var(--bg-raised)':'var(--blue)', color: showForm?'var(--text-2)':'#131B2E', border: showForm?'1px solid var(--border-2)':'none', borderRadius:10, fontSize:13, fontWeight:600, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:6, fontFamily:'inherit' }}>
         {showForm ? <><X size={14}/> Cancelar</> : <><Plus size={14}/> Nova meta</>}
       </button>
 
@@ -82,7 +82,7 @@ export default function Metas({ userId, txns }) {
             </div>
             <label style={{ fontSize:11, color:'var(--text-2)', display:'block', marginBottom:5 }}>Data limite (opcional)</label>
             <input style={inp} type="date" value={form.deadline} onChange={e=>setForm(p=>({...p,deadline:e.target.value}))} />
-            <button type="submit" disabled={saving} style={{ width:'100%', height:42, background:'var(--blue)', color:'#fff', border:'none', borderRadius:10, fontSize:13, fontWeight:600, cursor:'pointer' }}>
+            <button type="submit" disabled={saving} style={{ width:'100%', height:42, background:'var(--blue)', color:'#131B2E', border:'none', borderRadius:10, fontSize:13, fontWeight:600, cursor:'pointer' }}>
               {saving?'Salvando...':'Criar meta'}
             </button>
           </form>

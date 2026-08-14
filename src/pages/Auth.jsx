@@ -55,7 +55,7 @@ export default function Auth() {
             {mode === 'register' && <input style={inp} type="text" placeholder="Seu nome" value={name} onChange={e=>setName(e.target.value)} required />}
             <input style={inp} type="email" placeholder="seu@email.com" value={email} onChange={e=>setEmail(e.target.value)} required />
             {mode !== 'reset' && <input style={inp} type="password" placeholder="••••••••" value={pass} onChange={e=>setPass(e.target.value)} required minLength={6} />}
-            <button type="submit" disabled={loading} style={{ width:'100%', height:46, background: loading ? 'var(--blue-dark)':'var(--blue)', color:'#fff', border:'none', borderRadius:10, fontSize:15, fontWeight:600, cursor:'pointer', marginTop:4, transition:'background .15s' }}>
+            <button type="submit" disabled={loading} style={{ width:'100%', height:46, background: loading ? 'var(--blue-dark)':'var(--blue)', color:'#131B2E', border:'none', borderRadius:10, fontSize:15, fontWeight:600, cursor:'pointer', marginTop:4, transition:'background .15s' }}>
               {loading ? 'Aguarde...' : mode === 'login' ? 'Entrar' : mode === 'register' ? 'Criar conta' : 'Enviar'}
             </button>
           </form>
