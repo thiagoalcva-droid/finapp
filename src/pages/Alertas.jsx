@@ -126,7 +126,7 @@ export default function Alertas({ userId }) {
 
       <div style={{ marginBottom:'1rem' }}>
         <button onClick={()=>{ setShowForm(!showForm); setEditing(null); setForm({...BLANK}) }}
-          style={{ width:'100%', height:42, background: showForm ? 'var(--bg-raised)':'var(--blue)', color: showForm ? 'var(--text-2)':'#131B2E', border: showForm ? '1px solid var(--border-2)':'none', borderRadius:10, fontSize:13, fontWeight:600, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:6, fontFamily:'inherit' }}>
+          style={{ width:'100%', height:42, background: showForm ? 'var(--bg-raised)':'var(--blue)', color: showForm ? 'var(--text-2)':'#fff', border: showForm ? '1px solid var(--border-2)':'none', borderRadius:10, fontSize:13, fontWeight:600, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:6, fontFamily:'inherit' }}>
           {showForm ? <><X size={14} /> Cancelar</> : <><Plus size={14} /> Adicionar despesa</>}
         </button>
       </div>
@@ -161,7 +161,7 @@ export default function Alertas({ userId }) {
               </div>
             </div>
             <button type="submit" disabled={saving}
-              style={{ width:'100%', height:42, background:'var(--blue)', color:'#131B2E', border:'none', borderRadius:10, fontSize:13, fontWeight:600, cursor:'pointer' }}>
+              style={{ width:'100%', height:42, background:'var(--blue)', color:'#fff', border:'none', borderRadius:10, fontSize:13, fontWeight:600, cursor:'pointer' }}>
               {saving ? 'Salvando...': editing ? '✓ Salvar edição':'✓ Adicionar alerta'}
             </button>
           </form>

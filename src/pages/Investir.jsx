@@ -142,7 +142,7 @@ export default function Investir({ userId, txns }) {
         </button>
 
         {aiPlan && (
-          <div style={{ marginTop:14, background:'rgba(0,0,0,.35)', border:'1px solid rgba(212,175,55,.2)', borderRadius:12, padding:'16px', fontSize:13, lineHeight:1.8, color:'var(--text-1)', whiteSpace:'pre-wrap' }}>
+          <div style={{ marginTop:14, background:'rgba(0,0,0,.35)', border:'1px solid rgba(212,175,55,.2)', borderRadius:12, padding:'16px', fontSize:13, lineHeight:1.8, color:'#F0F2F8', whiteSpace:'pre-wrap' }}>
             {aiPlan}
           </div>
         )}
@@ -165,7 +165,7 @@ export default function Investir({ userId, txns }) {
       </div>
 
       <button onClick={()=>setShowForm(!showForm)}
-        style={{ width:'100%', height:42, marginBottom:'1rem', background: showForm?'var(--bg-raised)':'var(--blue)', color: showForm?'var(--text-2)':'#131B2E', border: showForm?'1px solid var(--border-2)':'none', borderRadius:10, fontSize:13, fontWeight:600, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:6, fontFamily:'inherit' }}>
+        style={{ width:'100%', height:42, marginBottom:'1rem', background: showForm?'var(--bg-raised)':'var(--blue)', color: showForm?'var(--text-2)':'#fff', border: showForm?'1px solid var(--border-2)':'none', borderRadius:10, fontSize:13, fontWeight:600, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:6, fontFamily:'inherit' }}>
         {showForm ? <><X size={14}/> Cancelar</> : <><Plus size={14}/> Adicionar investimento</>}
       </button>
 
@@ -179,7 +179,7 @@ export default function Investir({ userId, txns }) {
               <input style={inp} type="number" placeholder="Já aplicado (R$)" value={form.initial_amount} onChange={e=>setForm(p=>({...p,initial_amount:e.target.value}))} min="0" step="0.01" />
               <input style={inp} type="number" placeholder="Taxa % a.a." value={form.annual_rate} onChange={e=>setForm(p=>({...p,annual_rate:e.target.value}))} min="0" step="0.1" />
             </div>
-            <button type="submit" disabled={saving} style={{ width:'100%', height:42, background:'var(--blue)', color:'#131B2E', border:'none', borderRadius:10, fontSize:13, fontWeight:600, cursor:'pointer' }}>
+            <button type="submit" disabled={saving} style={{ width:'100%', height:42, background:'var(--blue)', color:'#fff', border:'none', borderRadius:10, fontSize:13, fontWeight:600, cursor:'pointer' }}>
               {saving?'Salvando...':'Adicionar'}
             </button>
           </form>

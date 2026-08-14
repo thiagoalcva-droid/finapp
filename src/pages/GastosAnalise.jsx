@@ -116,7 +116,7 @@ export default function GastosAnalise({ txns, setTxns }) {
 
       <div style={{ display:'flex', gap:5, marginBottom:'1rem', flexWrap:'wrap' }}>
         {STABS.map(([k,l])=>(
-          <button key={k} onClick={()=>setStab(k)} style={{ fontSize:11, padding:'6px 13px', borderRadius:20, border:'none', cursor:'pointer', fontFamily:'inherit', fontWeight:600, background: stab===k ? 'var(--blue)':'var(--bg-raised)', color: stab===k ? '#131B2E':'var(--text-2)' }}>
+          <button key={k} onClick={()=>setStab(k)} style={{ fontSize:11, padding:'6px 13px', borderRadius:20, border:'none', cursor:'pointer', fontFamily:'inherit', fontWeight:600, background: stab===k ? 'var(--blue)':'var(--bg-raised)', color: stab===k ? '#fff':'var(--text-2)' }}>
             {l}
           </button>
         ))}
@@ -211,7 +211,7 @@ export default function GastosAnalise({ txns, setTxns }) {
             placeholder="Ex: Estou gastando muito com delivery?"
             style={{ flex:1, resize:'none', border:'1px solid var(--border-2)', borderRadius:8, padding:'9px 12px', fontSize:13, background:'var(--bg-input)', color:'var(--text-1)', fontFamily:'inherit', height:42 }} />
           <button onClick={()=>sendConsult()} disabled={loading}
-            style={{ height:38, padding:'0 16px', background:'var(--blue)', color:'#131B2E', border:'none', borderRadius:8, fontSize:13, cursor:'pointer', fontWeight:600, opacity:loading?.6:1 }}>↗</button>
+            style={{ height:38, padding:'0 16px', background:'var(--blue)', color:'#fff', border:'none', borderRadius:8, fontSize:13, cursor:'pointer', fontWeight:600, opacity:loading?.6:1 }}>↗</button>
         </div>
         <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginTop:10 }}>
           {QUICK.map(q=>(

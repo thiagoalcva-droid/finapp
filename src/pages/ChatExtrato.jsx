@@ -10,6 +10,7 @@ export default function ChatExtrato({ userId, txns, setTxns }) {
   const [loading, setLoading]   = useState(false)
   const [histLoad, setHistLoad] = useState(true)
   const [recording, setRecording] = useState(false)
+  const [pendingEvent, setPendingEvent] = useState(null)
   const chatRef = useRef(null)
   const fileRef = useRef(null)
   const recRef  = useRef(null)
@@ -24,7 +25,7 @@ export default function ChatExtrato({ userId, txns, setTxns }) {
 
   useEffect(() => {
     if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight
-  }, [msgs, loading])
+  }, [msgs, loading, pendingEvent])
 
   const addMsg = async (role, text, image) => {
     setMsgs(prev => [...prev, { role, text, image }])
@@ -63,27 +64,37 @@ export default function ChatExtrato({ userId, txns, setTxns }) {
     }
 
     if (events.length > 0) {
-      for (const ev of events) {
-        try {
-          await insertEvent(userId, { title:ev.title, description:'', event_date:ev.event_date, reminder_minutes:ev.reminder_minutes ?? 180 })
-          const d = new Date(ev.event_date)
-          const quando = d.toLocaleDateString('pt-BR',{ day:'2-digit', month:'2-digit' }) + ' às ' + d.toLocaleTimeString('pt-BR',{ hour:'2-digit', minute:'2-digit' })
-          const aviso = (ev.reminder_minutes ?? 180) >= 1440 ? '1 dia antes' : '3 horas antes'
-          resumo += `\n📅 Compromisso marcado: **${ev.title}** — ${quando}\n🔔 Te aviso ${aviso}! Se preferir outro horário de aviso, é só me falar.`
-        } catch (e) {
-          resumo += `\nErro ao salvar o compromisso: ${e.message}`
-        }
-      }
+      // Guarda o compromisso pendente e mostra a caixinha bonita perguntando o aviso
+      const ev = events[0]
+      const d = new Date(ev.event_date)
+      const quando = d.toLocaleDateString('pt-BR',{ day:'2-digit', month:'long' }) + ' às ' + d.toLocaleTimeString('pt-BR',{ hour:'2-digit', minute:'2-digit' })
+      resumo += `\n📅 Entendi seu compromisso: **${ev.title}** — ${quando}.`
+      setPendingEvent(ev)
     }
 
     if (found.length > 0) resumo += `\nJá está tudo no seu painel!`
     await addMsg('ai', resumo.trim().replace(/\*\*/g,''))
   }
 
+  /* Confirma o aviso escolhido na caixinha e salva o compromisso */
+  const confirmarEvento = async (minutos) => {
+    if (!pendingEvent) return
+    const ev = pendingEvent
+    setPendingEvent(null)
+    try {
+      await insertEvent(userId, { title:ev.title, description:'', event_date:ev.event_date, reminder_minutes:minutos })
+      const aviso = minutos >= 1440 ? '1 dia antes' : '3 horas antes'
+      await addMsg('ai', `✅ Pronto! Vou te avisar **${aviso}** do seu compromisso "${ev.title}". Pode confiar, não vou deixar você esquecer! 😉`.replace(/\*\*/g,''))
+    } catch (e) {
+      await addMsg('ai', `Ops, não consegui salvar o compromisso: ${e.message}`)
+    }
+  }
+
   const process = async (textOverride) => {
     const txt = (textOverride || input).trim()
     if (!txt) return
     setInput('')
+    setPendingEvent(null)  // digitar outra msg fecha a caixinha
     await addMsg('user', txt)
     setLoading(true)
     try {
@@ -153,6 +164,26 @@ export default function ChatExtrato({ userId, txns, setTxns }) {
       {/* Mensagens — ocupa toda a tela */}
       <div ref={chatRef} style={{ flex:1, minHeight:0, overflowY:'auto', WebkitOverflowScrolling:'touch', padding:'14px 16px', display:'flex', flexDirection:'column', gap:10 }}>
         {msgs.map((m,i) => <Bubble key={i} msg={m} />)}
+
+        {pendingEvent && (
+          <div style={{ alignSelf:'flex-start', maxWidth:'92%', background:'var(--bg-card)', border:'1px solid var(--blue-border)', borderRadius:14, padding:16, animation:'fadeIn .2s ease', boxShadow:'0 2px 12px rgba(0,0,0,.06)' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:6 }}>
+              <span style={{ fontSize:18 }}>🔔</span>
+              <span style={{ fontSize:13, fontWeight:700, color:'var(--text-1)' }}>Como quer ser avisado?</span>
+            </div>
+            <div style={{ fontSize:12.5, color:'var(--text-2)', marginBottom:14, lineHeight:1.5 }}>
+              Escolhe quando eu devo te lembrar do seu compromisso pra você não perder:
+            </div>
+            <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+              <button onClick={()=>confirmarEvento(180)} style={{ width:'100%', padding:'12px 14px', borderRadius:10, border:'1px solid var(--blue-border)', background:'var(--blue-bg)', color:'var(--blue)', fontSize:13.5, fontWeight:600, cursor:'pointer', fontFamily:'inherit', display:'flex', alignItems:'center', gap:8 }}>
+                ⏰ Me avisa <strong>3 horas antes</strong>
+              </button>
+              <button onClick={()=>confirmarEvento(1440)} style={{ width:'100%', padding:'12px 14px', borderRadius:10, border:'1px solid var(--blue-border)', background:'var(--blue-bg)', color:'var(--blue)', fontSize:13.5, fontWeight:600, cursor:'pointer', fontFamily:'inherit', display:'flex', alignItems:'center', gap:8 }}>
+                📅 Me avisa <strong>1 dia antes</strong>
+              </button>
+            </div>
+          </div>
+        )}
         {loading && <Loader label="Lendo e registrando..." />}
         {recording && (
           <div style={{ display:'flex', alignItems:'center', gap:8, color:'var(--red)', fontSize:13 }}>
@@ -180,7 +211,7 @@ export default function ChatExtrato({ userId, txns, setTxns }) {
             rows={1}
             style={{ flex:1, resize:'none', border:'1px solid var(--border-2)', borderRadius:10, padding:'10px 12px', fontSize:16, background:'var(--bg-input)', color:'var(--text-1)', fontFamily:'inherit', maxHeight:100 }} />
           <button onClick={()=>process()} disabled={loading} aria-label="Enviar"
-            style={{ width:40, height:40, background:'var(--blue)', color:'#131B2E', border:'none', borderRadius:10, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', opacity:loading?.6:1, flexShrink:0 }}>
+            style={{ width:40, height:40, background:'var(--blue)', color:'#fff', border:'none', borderRadius:10, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', opacity:loading?.6:1, flexShrink:0 }}>
             <Send size={16} />
           </button>
         </div>

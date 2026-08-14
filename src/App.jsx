@@ -49,6 +49,12 @@ export default function App() {
   const [txnLoad, setTxnLoad]   = useState(false)
   const [month, setMonth]       = useState('todos')
   const [menuOpen, setMenuOpen] = useState(false)
+  const [novaMetaId, setNovaMetaId] = useState(null)
+
+  const virarMeta = (goal) => {
+    setNovaMetaId(goal.id)
+    setTab('metas')
+  }
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data:{ session } }) => { setSession(session); setAuthLoad(false) })
@@ -103,18 +109,18 @@ export default function App() {
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
 
       {/* ── CABEÇALHO ESTÁTICO (nunca rola) ── */}
-      <header style={{ flexShrink:0, borderBottom:'1px solid var(--border)', background:'var(--bg-card)', padding:'env(safe-area-inset-top) 16px 0' }}>
-        <div style={{ maxWidth:960, margin:'0 auto', display:'flex', alignItems:'center', justifyContent:'space-between', height:54 }}>
+      <header style={{ flexShrink:0, background:'var(--itau-navy)', padding:'env(safe-area-inset-top) 16px 0' }}>
+        <div style={{ maxWidth:960, margin:'0 auto', display:'flex', alignItems:'center', justifyContent:'space-between', height:56 }}>
           <div style={{ display:'flex', alignItems:'center', gap:8 }}>
             <button onClick={()=>setMenuOpen(true)} aria-label="Menu" style={{ width:38, height:38, border:'none', background:'none', cursor:'pointer', display:'flex', flexDirection:'column', justifyContent:'center', gap:4, padding:8, flexShrink:0 }}>
-              <span style={{ width:20, height:2, background:'var(--text-1)', borderRadius:2 }} />
-              <span style={{ width:20, height:2, background:'var(--text-1)', borderRadius:2 }} />
-              <span style={{ width:20, height:2, background:'var(--text-1)', borderRadius:2 }} />
+              <span style={{ width:20, height:2, background:'#fff', borderRadius:2 }} />
+              <span style={{ width:20, height:2, background:'#fff', borderRadius:2 }} />
+              <span style={{ width:20, height:2, background:'#fff', borderRadius:2 }} />
             </button>
             <img src="/icon-192.png" alt="" style={{ width:28, height:28, borderRadius:8 }} />
-            <span style={{ fontSize:15, fontWeight:700, color:'var(--text-1)', letterSpacing:'-0.3px' }}>Casado Investing</span>
+            <span style={{ fontSize:15, fontWeight:700, color:'#fff', letterSpacing:'-0.3px' }}>Casado Investing</span>
           </div>
-          <div style={{ width:28, height:28, borderRadius:'50%', background:'rgba(212,175,55,.12)', border:'1px solid rgba(212,175,55,.3)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:700, color:'#d4af37', flexShrink:0 }}>
+          <div style={{ width:30, height:30, borderRadius:'50%', background:'rgba(255,255,255,.12)', border:'1px solid rgba(255,255,255,.25)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:700, color:'#fff', flexShrink:0 }}>
             {name[0].toUpperCase()}
           </div>
         </div>
@@ -163,11 +169,11 @@ export default function App() {
       {monthAware && availableMonths.length > 0 && (
         <div style={{ flexShrink:0, background:'var(--bg)', padding:'10px 16px 0' }}>
           <div style={{ maxWidth:960, margin:'0 auto', display:'flex', gap:6, overflowX:'auto', overflowY:'hidden', paddingBottom:6 }}>
-            <button onClick={()=>setMonth('todos')} style={{ fontSize:11, padding:'5px 13px', borderRadius:20, border:'none', cursor:'pointer', fontFamily:'inherit', fontWeight:600, whiteSpace:'nowrap', flexShrink:0, background: month==='todos'?'var(--blue)':'var(--bg-raised)', color: month==='todos'?'#131B2E':'var(--text-2)' }}>
+            <button onClick={()=>setMonth('todos')} style={{ fontSize:11, padding:'5px 13px', borderRadius:20, border:'none', cursor:'pointer', fontFamily:'inherit', fontWeight:600, whiteSpace:'nowrap', flexShrink:0, background: month==='todos'?'var(--blue)':'var(--bg-raised)', color: month==='todos'?'#fff':'var(--text-2)' }}>
               Todos
             </button>
             {availableMonths.map(m=>(
-              <button key={m} onClick={()=>setMonth(m)} style={{ fontSize:11, padding:'5px 13px', borderRadius:20, border:'none', cursor:'pointer', fontFamily:'inherit', fontWeight:600, whiteSpace:'nowrap', flexShrink:0, background: month===m?'var(--blue)':'var(--bg-raised)', color: month===m?'#131B2E':'var(--text-2)' }}>
+              <button key={m} onClick={()=>setMonth(m)} style={{ fontSize:11, padding:'5px 13px', borderRadius:20, border:'none', cursor:'pointer', fontFamily:'inherit', fontWeight:600, whiteSpace:'nowrap', flexShrink:0, background: month===m?'var(--blue)':'var(--bg-raised)', color: month===m?'#fff':'var(--text-2)' }}>
                 {MONTH_LABELS[+m.slice(5,7)-1]} {m.slice(0,4)}
               </button>
             ))}
@@ -175,9 +181,9 @@ export default function App() {
         </div>
       )}
 
-      {/* ── CORPO (só isto rola) ── */}
-      <main style={{ flex:1, overflowY:'auto', WebkitOverflowScrolling:'touch', display:'flex', flexDirection:'column' }}>
-        <div style={{ maxWidth:960, margin:'0 auto', width:'100%', flex:1, display:'flex', flexDirection:'column', padding: isChat ? '0' : '1.25rem max(16px, env(safe-area-inset-left)) calc(5rem + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-right))' }}>
+      {/* ── CORPO (só isto rola; no chat, o próprio chat controla) ── */}
+      <main style={{ flex:1, overflowY: isChat ? 'hidden' : 'auto', WebkitOverflowScrolling:'touch', display:'flex', flexDirection:'column', minHeight:0 }}>
+        <div style={{ maxWidth:960, margin:'0 auto', width:'100%', flex:1, display:'flex', flexDirection:'column', minHeight:0, padding: isChat ? '0' : '1.25rem max(16px, env(safe-area-inset-left)) calc(5rem + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-right))' }}>
           {txnLoad ? (
             <div style={{ display:'flex', alignItems:'center', gap:8, padding:'2rem 16px', color:'var(--text-3)', fontSize:13 }}>
               <div style={{ width:6, height:6, borderRadius:'50%', background:'var(--text-3)', animation:'pulse-dot 1.2s infinite' }} />
@@ -190,9 +196,9 @@ export default function App() {
               {tab==='entradas'  && <Entradas txns={filteredTxns} setTxns={setTxns} onClearAll={clearAll} />}
               {tab==='despesas'  && <Despesas txns={filteredTxns} setTxns={setTxns} onClearAll={clearAll} />}
               {tab==='gastos'    && <GastosAnalise txns={filteredTxns} setTxns={setTxns} />}
-              {tab==='metas'     && <Metas userId={user.id} txns={txns} />}
+              {tab==='metas'     && <Metas userId={user.id} txns={txns} destaqueId={novaMetaId} />}
               {tab==='investir'  && <Investir userId={user.id} txns={txns} />}
-              {tab==='sonho'     && <Sonho userId={user.id} />}
+              {tab==='sonho'     && <Sonho userId={user.id} onVirarMeta={virarMeta} />}
               {tab==='alertas'   && <Alertas userId={user.id} />}
               {tab==='conselhos' && <Conselhos txns={filteredTxns} />}
             </>
@@ -203,7 +209,7 @@ export default function App() {
       {/* ── BOTÃO FLUTUANTE DO CHAT (some só dentro do chat) ── */}
       {!isChat && (
         <button onClick={()=>setTab('chat')} aria-label="Abrir chat"
-          style={{ position:'fixed', right:18, bottom:'calc(20px + env(safe-area-inset-bottom))', width:58, height:58, borderRadius:'50%', border:'none', background:'var(--blue)', color:'#131B2E', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 4px 16px rgba(212,176,74,.45)', zIndex:150 }}>
+          style={{ position:'fixed', right:18, bottom:'calc(20px + env(safe-area-inset-bottom))', width:58, height:58, borderRadius:'50%', border:'none', background:'var(--blue)', color:'#fff', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 4px 16px rgba(236,110,0,.4)', zIndex:150 }}>
           <MessageCircle size={26} />
         </button>
       )}

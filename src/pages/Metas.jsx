@@ -12,7 +12,7 @@ function monthsLeft(deadline) {
   return Math.max(0, Math.round(diff / (30.44*24*60*60*1000)))
 }
 
-export default function Metas({ userId, txns }) {
+export default function Metas({ userId, txns, destaqueId }) {
   const [goals, setGoals]     = useState([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -56,10 +56,19 @@ export default function Metas({ userId, txns }) {
 
   return (
     <div>
+      {destaqueId && goals.find(g=>g.id===destaqueId) && (
+        <div style={{ background:'linear-gradient(135deg, var(--itau-navy) 0%, var(--itau-navy-2) 100%)', borderRadius:16, padding:'1.25rem 1.5rem', marginBottom:'1rem', color:'#fff' }}>
+          <div style={{ fontSize:26, marginBottom:8 }}>🎉</div>
+          <div style={{ fontSize:16, fontWeight:700, marginBottom:6 }}>Seu sonho virou uma meta!</div>
+          <div style={{ fontSize:13, opacity:.9, lineHeight:1.5 }}>
+            Agora deixou de ser um sonho distante. Em alguns meses estaremos comemorando juntos! Acompanhe sua barra de progresso crescer a cada depósito. 💪
+          </div>
+        </div>
+      )}
       <Note>Crie metas financeiras e acompanhe o progresso. Adicione dinheiro conforme for guardando — a barra atualiza em tempo real.</Note>
 
       <button onClick={()=>setShowForm(!showForm)}
-        style={{ width:'100%', height:42, marginBottom:'1rem', background: showForm?'var(--bg-raised)':'var(--blue)', color: showForm?'var(--text-2)':'#131B2E', border: showForm?'1px solid var(--border-2)':'none', borderRadius:10, fontSize:13, fontWeight:600, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:6, fontFamily:'inherit' }}>
+        style={{ width:'100%', height:42, marginBottom:'1rem', background: showForm?'var(--bg-raised)':'var(--blue)', color: showForm?'var(--text-2)':'#fff', border: showForm?'1px solid var(--border-2)':'none', borderRadius:10, fontSize:13, fontWeight:600, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:6, fontFamily:'inherit' }}>
         {showForm ? <><X size={14}/> Cancelar</> : <><Plus size={14}/> Nova meta</>}
       </button>
 
@@ -82,7 +91,7 @@ export default function Metas({ userId, txns }) {
             </div>
             <label style={{ fontSize:11, color:'var(--text-2)', display:'block', marginBottom:5 }}>Data limite (opcional)</label>
             <input style={inp} type="date" value={form.deadline} onChange={e=>setForm(p=>({...p,deadline:e.target.value}))} />
-            <button type="submit" disabled={saving} style={{ width:'100%', height:42, background:'var(--blue)', color:'#131B2E', border:'none', borderRadius:10, fontSize:13, fontWeight:600, cursor:'pointer' }}>
+            <button type="submit" disabled={saving} style={{ width:'100%', height:42, background:'var(--blue)', color:'#fff', border:'none', borderRadius:10, fontSize:13, fontWeight:600, cursor:'pointer' }}>
               {saving?'Salvando...':'Criar meta'}
             </button>
           </form>

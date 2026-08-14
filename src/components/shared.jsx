@@ -42,7 +42,7 @@ export function Btn({ children, onClick, variant='primary', size='md', disabled,
   }
   const sizes = { sm: { fontSize: 12, padding: '5px 12px' }, md: { fontSize: 13, padding: '9px 18px' }, lg: { fontSize: 14, padding: '12px 24px' } }
   const variants = {
-    primary:   { background: 'var(--blue)',     color: '#131B2E'          },
+    primary:   { background: 'var(--blue)',     color: '#fff'          },
     secondary: { background: 'var(--bg-raised)', color: 'var(--text-2)', border: '1px solid var(--border-2)' },
     danger:    { background: 'var(--red-bg)',    color: 'var(--red)',    border: '1px solid var(--red-border)' },
     ghost:     { background: 'transparent',      color: 'var(--text-2)', border: '1px solid var(--border-2)' },
@@ -98,7 +98,7 @@ export function Bubble({ msg }) {
         <img src={msg.image} alt="Extrato enviado" style={{ maxWidth:'70%', borderRadius:12, border:'1px solid var(--border-2)', marginBottom: msg.text ? 4:0 }} />
       )}
       {msg.text && (
-        <div style={{ padding:'10px 14px', borderRadius:12, fontSize:13, lineHeight:1.6, maxWidth:'88%', background: isUser ? 'var(--blue)':'var(--bg-raised)', border: isUser ? 'none':'1px solid var(--border-2)', color: isUser ? '#131B2E':'var(--text-1)', fontWeight: isUser ? 500:400 }}>
+        <div style={{ padding:'10px 14px', borderRadius:12, fontSize:13, lineHeight:1.6, maxWidth:'88%', background: isUser ? 'var(--blue)':'var(--bg-raised)', border: isUser ? 'none':'1px solid var(--border-2)', color: isUser ? '#fff':'var(--text-1)', fontWeight: isUser ? 500:400 }}>
           {msg.text.split('\n').map((l,i) => <span key={i} style={{ display:'block' }}>{l||'\u00a0'}</span>)}
         </div>
       )}

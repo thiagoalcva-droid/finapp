@@ -103,7 +103,7 @@ export default function Conselhos({ txns }) {
             type="text" placeholder="Ex: Como posso investir melhor meu dinheiro?"
             style={{ flex:1, height:40, padding:'0 12px', borderRadius:8, border:'1px solid var(--border-2)', background:'var(--bg-input)', color:'var(--text-1)', fontFamily:'inherit', fontSize:13 }} />
           <button onClick={ask} disabled={ansLoading}
-            style={{ height:40, padding:'0 16px', background:'var(--blue)', color:'#131B2E', border:'none', borderRadius:8, fontSize:13, cursor:'pointer', fontWeight:600, opacity: ansLoading?.6:1 }}>
+            style={{ height:40, padding:'0 16px', background:'var(--blue)', color:'#fff', border:'none', borderRadius:8, fontSize:13, cursor:'pointer', fontWeight:600, opacity: ansLoading?.6:1 }}>
             ↗
           </button>
         </div>

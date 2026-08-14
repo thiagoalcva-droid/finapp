@@ -3,41 +3,49 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:        #0A0F1C;
-  --bg-card:   #101728;
-  --bg-raised: #162034;
-  --bg-input:  #1B2740;
+  /* Tema CLARO - Itau Personnalite */
+  --bg:        #F4F6FA;   /* fundo geral cinza bem claro */
+  --bg-card:   #FFFFFF;   /* cards brancos */
+  --bg-raised: #EDF1F7;   /* areas levemente cinza */
+  --bg-input:  #F0F3F8;   /* inputs */
 
-  --text-1: #F0F2F8;
-  --text-2: #8F96AB;
-  --text-3: #565E75;
+  --text-1: #1A2233;   /* texto principal quase preto */
+  --text-2: #5A6478;   /* texto secundario */
+  --text-3: #9098A8;   /* texto terciario */
 
-  --border:   rgba(255,255,255,0.07);
-  --border-2: rgba(255,255,255,0.13);
-  --border-3: rgba(255,255,255,0.22);
+  --border:   rgba(20,30,50,0.08);
+  --border-2: rgba(20,30,50,0.14);
+  --border-3: rgba(20,30,50,0.22);
 
-  --blue:      #D4B04A;
-  --blue-dark: #B8952E;
-  --blue-glow: rgba(212,176,74,0.25);
-  --blue-bg:   rgba(212,176,74,0.10);
-  --blue-border: rgba(212,176,74,0.30);
+  /* --blue = cor de ACAO/SELECAO = laranja Itau */
+  --blue:      #EC6E00;
+  --blue-dark: #CC5F00;
+  --blue-glow: rgba(236,110,0,0.22);
+  --blue-bg:   rgba(236,110,0,0.10);
+  --blue-border: rgba(236,110,0,0.28);
 
-  --itau-navy: #16437E;
+  /* azul do cabecalho / marca Personnalite */
+  --itau-navy:    #0A2540;
+  --itau-navy-2:  #12345C;
 
-  --green:       #34D399;
-  --green-bg:    rgba(52,211,153,0.10);
-  --green-border:rgba(52,211,153,0.25);
+  --gold:      #C9A227;
+  --gold-bg:   rgba(201,162,39,0.12);
+  --gold-border: rgba(201,162,39,0.30);
 
-  --red:        #F87171;
-  --red-bg:     rgba(248,113,113,0.10);
-  --red-border: rgba(248,113,113,0.25);
+  --green:       #0E9F6E;
+  --green-bg:    rgba(14,159,110,0.10);
+  --green-border:rgba(14,159,110,0.25);
 
-  --amber:        #FBBF24;
-  --amber-bg:     rgba(251,191,36,0.10);
-  --amber-border: rgba(251,191,36,0.25);
+  --red:        #E02424;
+  --red-bg:     rgba(224,36,36,0.08);
+  --red-border: rgba(224,36,36,0.22);
 
-  --purple:        #A78BFA;
-  --purple-bg:     rgba(167,139,250,0.10);
+  --amber:        #D97706;
+  --amber-bg:     rgba(217,119,6,0.10);
+  --amber-border: rgba(217,119,6,0.25);
+
+  --purple:        #7C3AED;
+  --purple-bg:     rgba(124,58,237,0.10);
 
   --radius: 8px;
   --radius-lg: 14px;
