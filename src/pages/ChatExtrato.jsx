@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
-import { Mic, ImageIcon, Square } from 'lucide-react'
-import { callClaude, callClaudeVision, EXTRATO_SYSTEM } from '../lib/claude'
+import { Mic, Paperclip, Square } from 'lucide-react'
+import { callClaude, callClaudeVision, callClaudeDoc, EXTRATO_SYSTEM } from '../lib/claude'
 import { insertTransactions, loadChat, saveMsg } from '../lib/api'
 import { fmt, CatIcon, Bubble, Loader, Note } from '../components/shared'
 
@@ -78,12 +78,12 @@ export default function ChatExtrato({ userId, txns, setTxns }) {
     setLoading(false)
   }
 
-  /* ── FOTO DO EXTRATO (Claude Vision) ── */
-  const handleImage = async (e) => {
+  /* ── ANEXO: FOTO ou PDF do extrato ── */
+  const handleFile = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
     e.target.value = ''
-    if (file.size > 5*1024*1024) { await addMsg('ai','Imagem muito grande (máx 5 MB). Tira uma foto menor.'); return }
+    if (file.size > 10*1024*1024) { await addMsg('ai','Arquivo muito grande (máx 10 MB). Envia um menor.'); return }
     setLoading(true)
     try {
       const dataUrl = await new Promise((res, rej) => {
@@ -93,12 +93,20 @@ export default function ChatExtrato({ userId, txns, setTxns }) {
         r.readAsDataURL(file)
       })
       const base64 = dataUrl.split(',')[1]
-      await addMsg('user', '', dataUrl)
-      const raw   = await callClaudeVision(EXTRATO_SYSTEM, base64, file.type, 'Extraia TODAS as transações desta imagem de extrato bancário. Responda apenas com o JSON.', 2000)
+      const isPDF  = file.type === 'application/pdf'
+
+      let raw
+      if (isPDF) {
+        await addMsg('user', `📄 ${file.name}`)
+        raw = await callClaudeDoc(EXTRATO_SYSTEM, base64, 'Extraia TODAS as transações deste extrato bancário. Responda apenas com o JSON.', 3000)
+      } else {
+        await addMsg('user', '', dataUrl)
+        raw = await callClaudeVision(EXTRATO_SYSTEM, base64, file.type, 'Extraia TODAS as transações desta imagem de extrato bancário. Responda apenas com o JSON.', 2000)
+      }
       const clean = raw.replace(/```json|```/g,'').trim()
       await registrar(JSON.parse(clean).transactions || [])
     } catch (err) {
-      await addMsg('ai', `Não consegui ler a imagem: ${err.message}. Tenta uma foto mais nítida?`)
+      await addMsg('ai', `Não consegui ler o arquivo: ${err.message}. Tenta uma foto ou PDF mais nítido?`)
     }
     setLoading(false)
   }
@@ -147,12 +155,12 @@ export default function ChatExtrato({ userId, txns, setTxns }) {
         )}
       </div>
 
-      <input type="file" ref={fileRef} accept="image/*" onChange={handleImage} style={{ display:'none' }} />
+      <input type="file" ref={fileRef} accept="image/*,application/pdf" onChange={handleFile} style={{ display:'none' }} />
 
       <div style={{ display:'flex', gap:8, alignItems:'flex-end' }}>
-        <button onClick={()=>fileRef.current?.click()} title="Enviar foto do extrato"
+        <button onClick={()=>fileRef.current?.click()} title="Anexar extrato (foto ou PDF)"
           style={{ width:38, height:38, border:'1px solid var(--border-2)', borderRadius:8, background:'var(--bg-raised)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:'var(--blue)', flexShrink:0 }}>
-          <ImageIcon size={15} />
+          <Paperclip size={16} />
         </button>
         <button onClick={toggleAudio} title="Falar transações"
           style={{ width:38, height:38, border:'1px solid', borderColor: recording?'var(--red)':'var(--border-2)', borderRadius:8, background: recording?'var(--red-bg)':'var(--bg-raised)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color: recording?'var(--red)':'var(--blue)', flexShrink:0 }}>

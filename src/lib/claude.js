@@ -40,6 +40,18 @@ export async function callClaudeVision(system, imageBase64, mediaType, promptTex
   return callClaude(system, messages, maxTokens)
 }
 
+/* Chamada com PDF (documento) - para extrato em PDF */
+export async function callClaudeDoc(system, pdfBase64, promptText, maxTokens = 3000) {
+  const messages = [{
+    role: 'user',
+    content: [
+      { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: pdfBase64 } },
+      { type: 'text', text: promptText },
+    ],
+  }]
+  return callClaude(system, messages, maxTokens)
+}
+
 export const EXTRATO_SYSTEM = `
 Voce e um processador de extratos bancarios e transacoes financeiras em portugues brasileiro.
 
@@ -110,4 +122,28 @@ Crie um PLANO DE ACAO com exatamente esta estrutura:
 4. ONDE INVESTIR (3 sugestoes concretas: Tesouro, CDB, fundos - com % de alocacao)
 5. MARCOS (valores acumulados em 1, 3 e 5 anos)
 Max 280 palavras. Direto, motivador mas realista.
+`
+
+export const SONHO_SYSTEM = `
+Voce e um planejador financeiro brasileiro que ajuda pessoas a realizarem sonhos de consumo de forma realista.
+
+Voce recebe o perfil da pessoa (idade, trabalho, renda, quanto pode investir por mes, e o SONHO dela).
+
+SUA TAREFA:
+1. ESTIME o preco real do sonho no Brasil em 2026 (seja realista com precos atuais). Se for algo com faixa de preco, use um valor medio.
+2. Calcule em quantos MESES a pessoa alcanca esse sonho investindo o valor mensal dela (considere rendimento de 0,8% ao mes / ~10% ao ano).
+3. Monte um PLANO DE ACAO motivador e realista.
+
+RESPONDA EM JSON valido, sem markdown:
+{
+  "sonho": "nome do sonho",
+  "preco_estimado": numero (em reais),
+  "meses": numero de meses para alcancar,
+  "anos_texto": "ex: 2 anos e 3 meses",
+  "aporte_mensal": numero (o que a pessoa pode investir),
+  "viavel": true/false,
+  "plano": "texto do plano de acao com 4-5 frases motivadoras, incluindo: se e viavel, quanto guardar por mes, onde investir esse dinheiro, e uma frase de incentivo. Use o nome do sonho e valores reais."
+}
+
+Se o aporte mensal for muito baixo e levar mais de 15 anos, marque viavel=false e no plano sugira aumentar o aporte ou escolher um sonho intermediario primeiro.
 `

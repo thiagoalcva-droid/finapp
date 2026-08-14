@@ -135,3 +135,16 @@ export async function savePlan(userId, plan) {
   if (error) throw error
   return data
 }
+
+/* DREAM PROFILE (quiz do sonho) */
+export async function loadDream(userId) {
+  const { data } = await supabase.from('dream_profile').select('*').eq('user_id', userId).maybeSingle()
+  return data
+}
+export async function saveDream(userId, dream) {
+  const { data, error } = await supabase.from('dream_profile')
+    .upsert({ user_id:userId, ...dream, updated_at:new Date().toISOString() }, { onConflict:'user_id' })
+    .select().single()
+  if (error) throw error
+  return data
+}

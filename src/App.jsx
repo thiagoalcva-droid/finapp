@@ -9,6 +9,7 @@ import Despesas      from './pages/Despesas'
 import GastosAnalise from './pages/GastosAnalise'
 import Metas         from './pages/Metas'
 import Investir      from './pages/Investir'
+import Sonho         from './pages/Sonho'
 import Agenda        from './pages/Agenda'
 import Alertas       from './pages/Alertas'
 import Conselhos     from './pages/Conselhos'
@@ -20,7 +21,8 @@ const TABS = [
   { id:'despesas',  icon:'💳', label:'Despesas'     },
   { id:'gastos',    icon:'⚖️',  label:'Análise'      },
   { id:'metas',     icon:'🎯', label:'Metas'        },
-  { id:'investir',  icon:'👑', label:'Investir'     },
+  { id:'investir',  icon:'👑', label:'Ficar milionário' },
+  { id:'sonho',     icon:'🌟', label:'Meu sonho'    },
   { id:'agenda',    icon:'📅', label:'Agenda'       },
   { id:'alertas',   icon:'🔔', label:'Alertas'      },
   { id:'conselhos', icon:'💡', label:'Conselhos IA' },
@@ -168,6 +170,7 @@ export default function App() {
             {tab==='gastos'    && <GastosAnalise txns={filteredTxns} setTxns={setTxns} />}
             {tab==='metas'     && <Metas userId={user.id} txns={txns} />}
             {tab==='investir'  && <Investir userId={user.id} txns={txns} />}
+            {tab==='sonho'     && <Sonho userId={user.id} />}
             {tab==='agenda'    && <Agenda userId={user.id} />}
             {tab==='alertas'   && <Alertas userId={user.id} />}
             {tab==='conselhos' && <Conselhos txns={filteredTxns} />}
