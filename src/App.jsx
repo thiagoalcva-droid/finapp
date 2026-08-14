@@ -79,7 +79,7 @@ export default function App() {
     <div style={{ minHeight:'100dvh', background:'var(--bg)', display:'flex', flexDirection:'column' }}>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
 
-      <header style={{ borderBottom:'1px solid var(--border)', background:'var(--bg-card)', padding:'0 20px', position:'sticky', top:0, zIndex:100 }}>
+      <header style={{ borderBottom:'1px solid var(--border)', background:'var(--bg-card)', padding:''env(safe-area-inset-top) 20px 0'', position:'sticky', top:0, zIndex:100 }}>
         <div style={{ maxWidth:960, margin:'0 auto', display:'flex', alignItems:'center', justifyContent:'space-between', height:54 }}>
           <div style={{ display:'flex', alignItems:'center', gap:10 }}>
             <img src="/icon-192.png" alt="" style={{ width:30, height:30, borderRadius:8 }} />
