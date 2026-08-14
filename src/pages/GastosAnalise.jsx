@@ -95,6 +95,55 @@ export default function GastosAnalise({ txns, setTxns }) {
 
   return (
     <div>
+      <Note>Aqui você vê <strong>para onde vai o seu dinheiro</strong>. Cada fatia é uma categoria de gasto — quanto maior, mais você gastou ali.</Note>
+
+      {/* ── DONUT: para onde vai o dinheiro ── */}
+      {(() => {
+        const cats = (() => { const m={}; out.forEach(t=>{m[t.cat]=(m[t.cat]||0)+t.amt}); return Object.entries(m).sort((a,b)=>b[1]-a[1]) })()
+        if (cats.length === 0) return (
+          <Card><div style={{ textAlign:'center', padding:'1.5rem', color:'var(--text-3)', fontSize:13 }}>Sem gastos no período ainda.</div></Card>
+        )
+        const total = cats.reduce((s,[,v])=>s+v,0)
+        let acc = 0
+        const R = 54, C = 2*Math.PI*R
+        return (
+          <Card>
+            <CardTitle>Balanço por categoria</CardTitle>
+            <div style={{ display:'flex', alignItems:'center', gap:20, flexWrap:'wrap', justifyContent:'center' }}>
+              <div style={{ position:'relative', width:150, height:150, flexShrink:0 }}>
+                <svg width="150" height="150" viewBox="0 0 150 150" style={{ transform:'rotate(-90deg)' }}>
+                  {cats.map(([cat,v],i)=>{
+                    const frac = v/total
+                    const dash = C*frac
+                    const off  = -acc*C
+                    acc += frac
+                    const cfg = CAT[cat]||CAT['Outros']
+                    return <circle key={i} cx="75" cy="75" r={R} fill="none" stroke={cfg.color} strokeWidth="20" strokeDasharray={`${dash} ${C-dash}`} strokeDashoffset={off} />
+                  })}
+                </svg>
+                <div style={{ position:'absolute', inset:0, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center' }}>
+                  <div style={{ fontSize:10, color:'var(--text-3)' }}>Total</div>
+                  <div style={{ fontSize:15, fontWeight:700, color:'var(--text-1)', fontFamily:"'JetBrains Mono',monospace" }}>{fmt(total)}</div>
+                </div>
+              </div>
+              <div style={{ flex:1, minWidth:180, display:'flex', flexDirection:'column', gap:8 }}>
+                {cats.slice(0,7).map(([cat,v])=>{
+                  const cfg = CAT[cat]||CAT['Outros']
+                  return (
+                    <div key={cat} style={{ display:'flex', alignItems:'center', gap:8 }}>
+                      <span style={{ width:10, height:10, borderRadius:3, background:cfg.color, flexShrink:0 }} />
+                      <span style={{ fontSize:12.5, color:'var(--text-1)', flex:1 }}>{cfg.icon} {cat}</span>
+                      <span style={{ fontSize:12, fontWeight:600, color:'var(--text-2)', fontFamily:"'JetBrains Mono',monospace" }}>{pct(v,total)}%</span>
+                      <span style={{ fontSize:12, fontWeight:600, color:'var(--text-1)', fontFamily:"'JetBrains Mono',monospace", minWidth:75, textAlign:'right' }}>{fmt(v)}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          </Card>
+        )
+      })()}
+
       <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(120px,1fr))', gap:8, marginBottom:'1rem' }}>
         <div style={{ background:'var(--bg-raised)', borderRadius:10, padding:'12px 14px', display:'flex', alignItems:'center', gap:12 }}>
           <div style={{ position:'relative', width:46, height:46, flexShrink:0 }}>

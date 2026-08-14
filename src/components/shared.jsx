@@ -1,31 +1,31 @@
 export const CAT = {
-  'Renda':          { icon: '💰', color: '#34D399', bg: 'rgba(52,211,153,.12)'  },
-  'Renda Extra':    { icon: '💵', color: '#34D399', bg: 'rgba(52,211,153,.12)'  },
-  'Moradia':        { icon: '🏠', color: '#60A5FA', bg: 'rgba(96,165,250,.12)'  },
-  'Saúde':          { icon: '❤️',  color: '#F87171', bg: 'rgba(248,113,113,.12)' },
-  'Saude':          { icon: '❤️',  color: '#F87171', bg: 'rgba(248,113,113,.12)' },
-  'Serviços':       { icon: '📡', color: '#A78BFA', bg: 'rgba(167,139,250,.12)' },
-  'Servicos':       { icon: '📡', color: '#A78BFA', bg: 'rgba(167,139,250,.12)' },
-  'Assinaturas':    { icon: '📱', color: '#818CF8', bg: 'rgba(129,140,248,.12)' },
-  'Alimentação':    { icon: '🛒', color: '#34D399', bg: 'rgba(52,211,153,.12)'  },
-  'Alimentacao':    { icon: '🛒', color: '#34D399', bg: 'rgba(52,211,153,.12)'  },
-  'Delivery':       { icon: '🍔', color: '#FB923C', bg: 'rgba(251,146,60,.12)'  },
-  'Gasolina':       { icon: '⛽', color: '#FBBF24', bg: 'rgba(251,191,36,.12)'  },
-  'Transporte':     { icon: '🚌', color: '#FBBF24', bg: 'rgba(251,191,36,.12)'  },
-  'Vestuário':      { icon: '👗', color: '#A78BFA', bg: 'rgba(167,139,250,.12)' },
-  'Vestuario':      { icon: '👗', color: '#A78BFA', bg: 'rgba(167,139,250,.12)' },
-  'Lazer':          { icon: '🎉', color: '#60A5FA', bg: 'rgba(96,165,250,.12)'  },
-  'Transferências': { icon: '🔄', color: '#38BDF8', bg: 'rgba(56,189,248,.12)'  },
-  'Transferencias': { icon: '🔄', color: '#38BDF8', bg: 'rgba(56,189,248,.12)'  },
-  'Saque':          { icon: '🏧', color: '#FB923C', bg: 'rgba(251,146,60,.12)'  },
-  'Contas':         { icon: '🧾', color: '#F87171', bg: 'rgba(248,113,113,.12)' },
-  'Investimentos':  { icon: '📈', color: '#34D399', bg: 'rgba(52,211,153,.12)'  },
-  'Taxas':          { icon: '🏦', color: '#94A3B8', bg: 'rgba(148,163,184,.12)' },
-  'Pet':            { icon: '🐾', color: '#FBBF24', bg: 'rgba(251,191,36,.12)'  },
-  'Educação':       { icon: '🎓', color: '#818CF8', bg: 'rgba(129,140,248,.12)' },
-  'Educacao':       { icon: '🎓', color: '#818CF8', bg: 'rgba(129,140,248,.12)' },
-  'Presentes':      { icon: '🎁', color: '#F472B6', bg: 'rgba(244,114,182,.12)' },
-  'Outros':         { icon: '📦', color: '#6B7280', bg: 'rgba(107,114,128,.12)' },
+  'Renda':          { icon: '💰', color: '#0E9F6E', bg: 'rgba(14,159,110,.12)'  },
+  'Renda Extra':    { icon: '💵', color: '#0E9F6E', bg: 'rgba(14,159,110,.12)'  },
+  'Moradia':        { icon: '🏠', color: '#2563EB', bg: 'rgba(37,99,235,.10)'   },
+  'Saúde':          { icon: '❤️',  color: '#E02424', bg: 'rgba(224,36,36,.09)'   },
+  'Saude':          { icon: '❤️',  color: '#E02424', bg: 'rgba(224,36,36,.09)'   },
+  'Serviços':       { icon: '📡', color: '#7C3AED', bg: 'rgba(124,58,237,.10)'  },
+  'Servicos':       { icon: '📡', color: '#7C3AED', bg: 'rgba(124,58,237,.10)'  },
+  'Assinaturas':    { icon: '📱', color: '#4F46E5', bg: 'rgba(79,70,229,.10)'   },
+  'Alimentação':    { icon: '🛒', color: '#0E9F6E', bg: 'rgba(14,159,110,.12)'  },
+  'Alimentacao':    { icon: '🛒', color: '#0E9F6E', bg: 'rgba(14,159,110,.12)'  },
+  'Delivery':       { icon: '🍔', color: '#EA580C', bg: 'rgba(234,88,12,.10)'   },
+  'Gasolina':       { icon: '⛽', color: '#D97706', bg: 'rgba(217,119,6,.12)'   },
+  'Transporte':     { icon: '🚌', color: '#D97706', bg: 'rgba(217,119,6,.12)'   },
+  'Vestuário':      { icon: '👗', color: '#7C3AED', bg: 'rgba(124,58,237,.10)'  },
+  'Vestuario':      { icon: '👗', color: '#7C3AED', bg: 'rgba(124,58,237,.10)'  },
+  'Lazer':          { icon: '🎉', color: '#2563EB', bg: 'rgba(37,99,235,.10)'   },
+  'Transferências': { icon: '🔄', color: '#0891B2', bg: 'rgba(8,145,178,.10)'   },
+  'Transferencias': { icon: '🔄', color: '#0891B2', bg: 'rgba(8,145,178,.10)'   },
+  'Saque':          { icon: '🏧', color: '#EA580C', bg: 'rgba(234,88,12,.10)'   },
+  'Contas':         { icon: '🧾', color: '#E02424', bg: 'rgba(224,36,36,.09)'   },
+  'Investimentos':  { icon: '📈', color: '#0E9F6E', bg: 'rgba(14,159,110,.12)'  },
+  'Taxas':          { icon: '🏦', color: '#64748B', bg: 'rgba(100,116,139,.10)' },
+  'Pet':            { icon: '🐾', color: '#D97706', bg: 'rgba(217,119,6,.12)'   },
+  'Educação':       { icon: '🎓', color: '#4F46E5', bg: 'rgba(79,70,229,.10)'   },
+  'Educacao':       { icon: '🎓', color: '#4F46E5', bg: 'rgba(79,70,229,.10)'   },
+  'Presentes':      { icon: '🎁', color: '#DB2777', bg: 'rgba(219,39,119,.10)'  },
+  'Outros':         { icon: '📦', color: '#64748B', bg: 'rgba(100,116,139,.10)' },
 }
 
 export const fmt  = n => Number(n).toLocaleString('pt-BR', { style:'currency', currency:'BRL' })
@@ -97,6 +97,9 @@ export function Bubble({ msg }) {
       {msg.image && (
         <img src={msg.image} alt="Extrato enviado" style={{ maxWidth:'70%', borderRadius:12, border:'1px solid var(--border-2)', marginBottom: msg.text ? 4:0 }} />
       )}
+      {msg.audio && (
+        <audio controls src={msg.audio} style={{ maxWidth:'88%', height:40, marginBottom: msg.text ? 4:0 }} />
+      )}
       {msg.text && (
         <div style={{ padding:'10px 14px', borderRadius:12, fontSize:13, lineHeight:1.6, maxWidth:'88%', background: isUser ? 'var(--blue)':'var(--bg-raised)', border: isUser ? 'none':'1px solid var(--border-2)', color: isUser ? '#fff':'var(--text-1)', fontWeight: isUser ? 500:400 }}>
           {msg.text.split('\n').map((l,i) => <span key={i} style={{ display:'block' }}>{l||'\u00a0'}</span>)}
@@ -108,7 +111,7 @@ export function Bubble({ msg }) {
 
 /* ── Card ───────────────────────────────────────────────────── */
 export const Card = ({ children, style={} }) => (
-  <div style={{ background:'var(--bg-card)', border:'1px solid var(--border)', borderRadius:var_radius_lg, padding:'1.25rem', marginBottom:'1rem', ...style }}>
+  <div style={{ background:'var(--bg-card)', border:'1px solid var(--border)', borderRadius:var_radius_lg, padding:'1.25rem', marginBottom:'1rem', boxShadow:'0 1px 3px rgba(20,30,50,.06)', ...style }}>
     {children}
   </div>
 )
@@ -124,10 +127,11 @@ export const CardTitle = ({ children }) => (
 
 /* ── MetricCard ─────────────────────────────────────────────── */
 export function MetricCard({ label, value, sub, accent }) {
+  const bar = accent || 'var(--blue)'
   return (
-    <div style={{ background:'var(--bg-raised)', borderRadius:10, padding:'14px 16px', borderLeft: accent ? `3px solid ${accent}`:undefined }}>
+    <div style={{ background:'var(--bg-card)', border:'1px solid var(--border)', borderRadius:12, padding:'14px 16px', borderLeft:`3px solid ${bar}`, boxShadow:'0 1px 3px rgba(20,30,50,.06)' }}>
       <div style={{ fontSize:11, color:'var(--text-3)', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:8 }}>{label}</div>
-      <div style={{ fontSize:20, fontWeight:600, fontFamily:"'JetBrains Mono',monospace", color:'var(--text-1)' }}>{value}</div>
+      <div style={{ fontSize:20, fontWeight:700, fontFamily:"'JetBrains Mono',monospace", color:'var(--text-1)' }}>{value}</div>
       {sub && <div style={{ fontSize:11, color:'var(--text-2)', marginTop:4 }}>{sub}</div>}
     </div>
   )

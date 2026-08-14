@@ -10,10 +10,15 @@ export default function ChatExtrato({ userId, txns, setTxns }) {
   const [loading, setLoading]   = useState(false)
   const [histLoad, setHistLoad] = useState(true)
   const [recording, setRecording] = useState(false)
+  const [recSecs, setRecSecs]   = useState(0)
   const [pendingEvent, setPendingEvent] = useState(null)
   const chatRef = useRef(null)
   const fileRef = useRef(null)
   const recRef  = useRef(null)
+  const mediaRef = useRef(null)
+  const chunksRef = useRef([])
+  const timerRef = useRef(null)
+  const transcriptRef = useRef('')
 
   useEffect(() => {
     loadChat(userId).then(h => {
@@ -140,22 +145,72 @@ export default function ChatExtrato({ userId, txns, setTxns }) {
     setLoading(false)
   }
 
-  /* ── ÁUDIO ── */
-  const toggleAudio = () => {
+  /* ── ÁUDIO: grava áudio real (tocável) + transcreve + registra ── */
+  const startAudio = async () => {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition
-    if (!SR) { addMsg('ai','Seu navegador não suporta reconhecimento de voz. Usa o Chrome.'); return }
-    if (recording) { recRef.current?.stop(); return }
-    const rec = new SR()
-    rec.lang = 'pt-BR'
-    rec.continuous = false
-    rec.interimResults = false
-    rec.onresult = (e) => { const text = e.results[0][0].transcript; setRecording(false); process(text) }
-    rec.onerror  = () => { setRecording(false); addMsg('ai','Não consegui ouvir. Tenta de novo num lugar mais silencioso.') }
-    rec.onend    = () => setRecording(false)
-    recRef.current = rec
-    setRecording(true)
-    rec.start()
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio:true })
+      // Grava o áudio de verdade
+      chunksRef.current = []
+      const mr = new MediaRecorder(stream)
+      mr.ondataavailable = e => { if (e.data.size>0) chunksRef.current.push(e.data) }
+      mr.onstop = async () => {
+        stream.getTracks().forEach(t=>t.stop())
+        clearInterval(timerRef.current)
+        const blob = new Blob(chunksRef.current, { type:'audio/webm' })
+        const audioUrl = await new Promise(res => {
+          const r = new FileReader(); r.onload = ()=>res(r.result); r.readAsDataURL(blob)
+        })
+        const texto = transcriptRef.current.trim()
+        // mostra a bolha com o áudio tocável
+        setMsgs(prev => [...prev, { role:'user', text:'', audio:audioUrl }])
+        await saveMsg(userId, 'user', texto ? `🎤 ${texto}` : '🎤 (áudio)', null).catch(()=>{})
+        // registra a transação a partir da transcrição
+        if (texto) {
+          setLoading(true)
+          try {
+            const raw = await callClaude(EXTRATO_SYSTEM, [{ role:'user', content:texto }], 1500)
+            await registrar(JSON.parse(raw.replace(/```json|```/g,'').trim()))
+          } catch(e) { await addMsg('ai', `Ops, não entendi o áudio: ${e.message}. Tenta de novo?`) }
+          setLoading(false)
+        } else {
+          await addMsg('ai', 'Não consegui entender o que você falou. Pode repetir mais devagar?')
+        }
+      }
+      mediaRef.current = mr
+      mr.start()
+
+      // Transcreve em paralelo
+      transcriptRef.current = ''
+      if (SR) {
+        const rec = new SR()
+        rec.lang = 'pt-BR'; rec.continuous = true; rec.interimResults = true
+        rec.onresult = (e) => {
+          let full = ''
+          for (let i=0;i<e.results.length;i++) full += e.results[i][0].transcript
+          transcriptRef.current = full
+        }
+        recRef.current = rec
+        try { rec.start() } catch(_){}
+      }
+
+      // Timer visual
+      setRecSecs(0)
+      timerRef.current = setInterval(()=>setRecSecs(s=>s+1), 1000)
+      setRecording(true)
+    } catch(err) {
+      addMsg('ai','Preciso da permissão do microfone pra gravar. Libera o acesso e tenta de novo. 🎤')
+    }
   }
+
+  const stopAudio = () => {
+    setRecording(false)
+    try { recRef.current?.stop() } catch(_){}
+    try { mediaRef.current?.stop() } catch(_){}
+  }
+
+  const toggleAudio = () => { recording ? stopAudio() : startAudio() }
+  const fmtSecs = (s) => `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`
 
   if (histLoad) return <Loader label="Carregando conversa..." />
 
@@ -186,9 +241,10 @@ export default function ChatExtrato({ userId, txns, setTxns }) {
         )}
         {loading && <Loader label="Lendo e registrando..." />}
         {recording && (
-          <div style={{ display:'flex', alignItems:'center', gap:8, color:'var(--red)', fontSize:13 }}>
-            <span style={{ width:8, height:8, borderRadius:'50%', background:'var(--red)', animation:'pulse-dot 1s infinite' }} />
-            Ouvindo... fala e para quando terminar.
+          <div style={{ alignSelf:'flex-end', display:'flex', alignItems:'center', gap:10, background:'var(--red-bg)', border:'1px solid var(--red-border)', borderRadius:12, padding:'10px 16px' }}>
+            <span style={{ width:10, height:10, borderRadius:'50%', background:'var(--red)', animation:'pulse-dot 1s infinite' }} />
+            <span style={{ fontSize:14, fontWeight:600, color:'var(--red)', fontFamily:"'JetBrains Mono',monospace" }}>{fmtSecs(recSecs)}</span>
+            <span style={{ fontSize:12, color:'var(--text-2)' }}>gravando... toque no ■ pra enviar</span>
           </div>
         )}
       </div>

@@ -41,7 +41,7 @@ export async function callClaudeVision(system, imageBase64, mediaType, promptTex
 }
 
 /* Chamada com PDF (documento) - para extrato em PDF */
-export async function callClaudeDoc(system, pdfBase64, promptText, maxTokens = 3000) {
+export async function callClaudeDoc(system, pdfBase64, promptText, maxTokens = 4000) {
   const messages = [{
     role: 'user',
     content: [

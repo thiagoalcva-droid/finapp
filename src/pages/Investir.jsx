@@ -99,7 +99,7 @@ export default function Investir({ userId, txns }) {
   return (
     <div>
       {/* ══ QUERO FICAR MILIONARIO ══ */}
-      <div style={{ background:'linear-gradient(135deg, #1a1305 0%, #0d0d0f 60%)', border:'1px solid rgba(212,175,55,.35)', borderRadius:16, padding:'1.5rem', marginBottom:'1.5rem' }}>
+      <div style={{ background:'linear-gradient(135deg, var(--itau-navy) 0%, var(--itau-navy-2) 100%)', border:'1px solid rgba(212,175,55,.35)', borderRadius:16, padding:'1.5rem', marginBottom:'1.5rem' }}>
         <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:14 }}>
           <div style={{ width:42, height:42, borderRadius:12, background:'rgba(212,175,55,.15)', border:'1px solid rgba(212,175,55,.4)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:20 }}>👑</div>
           <div>
