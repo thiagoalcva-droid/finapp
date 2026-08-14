@@ -9,9 +9,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icon-192.png', 'icon-512.png'],
       manifest: {
-        name: 'FinApp — Finanças Inteligentes',
-        short_name: 'FinApp',
-        description: 'Organize suas finanças com IA',
+        name: 'Casado Investing',
+        short_name: 'Casado Inv.',
+        description: 'Suas finanças com inteligência artificial',
         theme_color: '#090909',
         background_color: '#090909',
         display: 'standalone',

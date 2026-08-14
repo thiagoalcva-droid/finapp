@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
-import { Mic, ImageIcon } from 'lucide-react'
-import { callClaude, EXTRATO_SYSTEM } from '../lib/claude'
+import { Mic, ImageIcon, Square } from 'lucide-react'
+import { callClaude, callClaudeVision, EXTRATO_SYSTEM } from '../lib/claude'
 import { insertTransactions, loadChat, saveMsg } from '../lib/api'
-import { fmt, CAT, CatIcon, Bubble, Loader, Note } from '../components/shared'
+import { fmt, CatIcon, Bubble, Loader, Note } from '../components/shared'
 
 export default function ChatExtrato({ userId, txns, setTxns }) {
   const [msgs, setMsgs]         = useState([])
@@ -10,12 +10,15 @@ export default function ChatExtrato({ userId, txns, setTxns }) {
   const [loading, setLoading]   = useState(false)
   const [pending, setPending]   = useState([])
   const [histLoad, setHistLoad] = useState(true)
+  const [recording, setRecording] = useState(false)
   const chatRef = useRef(null)
+  const fileRef = useRef(null)
+  const recRef  = useRef(null)
 
   useEffect(() => {
     loadChat(userId).then(h => {
       if (h.length > 0) setMsgs(h)
-      else setMsgs([{ role:'ai', text:'Olá! Cole seu extrato bancário, descreva transações em texto ou use os exemplos abaixo.\n\nVou identificar cada lançamento, categorizar automaticamente e confirmar com você antes de salvar. 📊' }])
+      else setMsgs([{ role:'ai', text:'Olá! Você pode:\n\n📋 Colar seu extrato bancário\n📷 Enviar FOTO do extrato (clique no ícone de imagem)\n🎤 Falar as transações (clique no microfone)\n✍️ Escrever livremente: "paguei aluguel 1500 ontem"\n\nEu identifico tudo, categorizo e confirmo antes de salvar.' }])
       setHistLoad(false)
     })
   }, [userId])
@@ -29,6 +32,15 @@ export default function ChatExtrato({ userId, txns, setTxns }) {
     await saveMsg(userId, role, text).catch(() => {})
   }
 
+  const handleFound = async (found) => {
+    if (found.length === 0) {
+      await addMsg('ai','Não identifiquei transações. Tente de novo com mais detalhes.')
+    } else {
+      setPending(found.map(t => ({ ...t, id: crypto.randomUUID() })))
+      await addMsg('ai', `Encontrei ${found.length} transação(ões). Revise e confirme abaixo.`)
+    }
+  }
+
   const process = async (textOverride) => {
     const txt = (textOverride || input).trim()
     if (!txt) return
@@ -36,19 +48,58 @@ export default function ChatExtrato({ userId, txns, setTxns }) {
     await addMsg('user', txt)
     setLoading(true)
     try {
-      const raw   = await callClaude(EXTRATO_SYSTEM, [{ role:'user', content:txt }], 1000)
+      const raw   = await callClaude(EXTRATO_SYSTEM, [{ role:'user', content:txt }], 1200)
       const clean = raw.replace(/```json|```/g,'').trim()
-      const found = JSON.parse(clean).transactions || []
-      if (found.length === 0) {
-        await addMsg('ai','Não identifiquei transações. Tente colar um extrato bancário ou descreva assim: "Paguei aluguel R$ 1.500 ontem".')
-      } else {
-        setPending(found.map(t => ({ ...t, id: crypto.randomUUID() })))
-        await addMsg('ai', `Encontrei ${found.length} transação(ões). Revise e confirme abaixo para salvar no sistema.`)
-      }
+      await handleFound(JSON.parse(clean).transactions || [])
     } catch (e) {
-      await addMsg('ai', `Erro: ${e.message}. Verifique sua conexão e tente novamente.`)
+      await addMsg('ai', `Erro: ${e.message}`)
     }
     setLoading(false)
+  }
+
+  /* ── FOTO DO EXTRATO (Claude Vision) ── */
+  const handleImage = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    e.target.value = ''
+    if (file.size > 5*1024*1024) { await addMsg('ai','Imagem muito grande (máx 5 MB). Tire uma foto menor.'); return }
+    await addMsg('user', `📷 Enviou foto: ${file.name}`)
+    setLoading(true)
+    try {
+      const base64 = await new Promise((res, rej) => {
+        const r = new FileReader()
+        r.onload  = () => res(r.result.split(',')[1])
+        r.onerror = rej
+        r.readAsDataURL(file)
+      })
+      const raw   = await callClaudeVision(EXTRATO_SYSTEM, base64, file.type, 'Extraia TODAS as transações desta imagem de extrato bancário. Responda apenas com o JSON.', 1500)
+      const clean = raw.replace(/```json|```/g,'').trim()
+      await handleFound(JSON.parse(clean).transactions || [])
+    } catch (err) {
+      await addMsg('ai', `Erro ao ler a imagem: ${err.message}`)
+    }
+    setLoading(false)
+  }
+
+  /* ── ÁUDIO (Web Speech API) ── */
+  const toggleAudio = () => {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition
+    if (!SR) { addMsg('ai','Seu navegador não suporta reconhecimento de voz. Use o Chrome.'); return }
+    if (recording) { recRef.current?.stop(); return }
+    const rec = new SR()
+    rec.lang = 'pt-BR'
+    rec.continuous = false
+    rec.interimResults = false
+    rec.onresult = (e) => {
+      const text = e.results[0][0].transcript
+      setRecording(false)
+      process(text)
+    }
+    rec.onerror = () => { setRecording(false); addMsg('ai','Não consegui ouvir. Tente de novo em um lugar mais silencioso.') }
+    rec.onend   = () => setRecording(false)
+    recRef.current = rec
+    setRecording(true)
+    rec.start()
   }
 
   const confirm = async () => {
@@ -56,24 +107,23 @@ export default function ChatExtrato({ userId, txns, setTxns }) {
       const saved = await insertTransactions(userId, pending)
       setTxns(prev => [...prev, ...saved])
       setPending([])
-      await addMsg('ai', `✅ ${saved.length} transação(ões) salvas com sucesso!`)
+      await addMsg('ai', `✅ ${saved.length} transação(ões) salvas!`)
     } catch (e) { await addMsg('ai', `Erro ao salvar: ${e.message}`) }
   }
 
-  const cancel = () => { setPending([]); addMsg('ai', 'Cancelado. Pode enviar um novo extrato.') }
+  const cancel = () => { setPending([]); addMsg('ai', 'Cancelado.') }
 
   const EXAMPLES = [
-    { label: 'Extrato banco',  text: '14/05 PIX IFOOD*12345 R$ 47,80\n14/05 DEB POSTO IPIRANGA R$ 180,00\n10/05 CRED SALARIO EMPRESA LTDA R$ 8.500,00\n12/05 DEB SPOTIFY R$ 21,90\n08/05 DEB SUPERMERCADO ATACADAO R$ 320,00' },
-    { label: '+ Aluguel',      text: 'Paguei aluguel R$ 1.500 dia 5' },
-    { label: '+ PIX recebido', text: 'Recebi PIX R$ 500 de João hoje' },
-    { label: '+ Cartão',       text: 'Comprei no cartão Renner R$ 220 hoje' },
+    { label: 'Extrato exemplo',  text: '14/08 PIX IFOOD*12345 R$ 47,80\n14/08 DEB POSTO IPIRANGA R$ 180,00\n10/08 CRED SALARIO EMPRESA LTDA R$ 8.500,00\n12/08 DEB SPOTIFY R$ 21,90' },
+    { label: '+ Aluguel',        text: 'Paguei aluguel R$ 1.500 dia 5' },
+    { label: '+ PIX recebido',   text: 'Recebi PIX R$ 500 de João hoje' },
   ]
 
   if (histLoad) return <Loader label="Carregando histórico..." />
 
   return (
     <div>
-      <Note>Cole o extrato bancário, descreva em texto livre ou use os exemplos. A IA identifica, categoriza e pede confirmação antes de salvar.</Note>
+      <Note>Cole o extrato, envie uma <strong>foto</strong> 📷 ou <strong>fale</strong> 🎤 as transações. A IA identifica, categoriza e pede confirmação.</Note>
 
       <div ref={chatRef} style={{ background:'var(--bg-raised)', borderRadius:12, padding:'1rem', minHeight:260, maxHeight:400, overflowY:'auto', marginBottom:12, display:'flex', flexDirection:'column', gap:10 }}>
         {msgs.map((m,i) => <Bubble key={i} msg={m} />)}
@@ -107,14 +157,24 @@ export default function ChatExtrato({ userId, txns, setTxns }) {
         )}
 
         {loading && <Loader label="Processando com IA..." />}
+        {recording && (
+          <div style={{ display:'flex', alignItems:'center', gap:8, color:'var(--red)', fontSize:13 }}>
+            <span style={{ width:8, height:8, borderRadius:'50%', background:'var(--red)', animation:'pulse-dot 1s infinite' }} />
+            Ouvindo... fale as transações e pare de falar quando terminar.
+          </div>
+        )}
       </div>
 
+      <input type="file" ref={fileRef} accept="image/*" onChange={handleImage} style={{ display:'none' }} />
+
       <div style={{ display:'flex', gap:8, alignItems:'flex-end' }}>
-        <button style={{ width:36, height:36, border:'1px solid var(--border-2)', borderRadius:8, background:'var(--bg-raised)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:'var(--text-3)', flexShrink:0 }}>
-          <ImageIcon size={14} />
+        <button onClick={()=>fileRef.current?.click()} title="Enviar foto do extrato"
+          style={{ width:38, height:38, border:'1px solid var(--border-2)', borderRadius:8, background:'var(--bg-raised)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:'var(--blue)', flexShrink:0 }}>
+          <ImageIcon size={15} />
         </button>
-        <button style={{ width:36, height:36, border:'1px solid var(--border-2)', borderRadius:8, background:'var(--bg-raised)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:'var(--text-3)', flexShrink:0 }}>
-          <Mic size={14} />
+        <button onClick={toggleAudio} title="Falar transações"
+          style={{ width:38, height:38, border:'1px solid', borderColor: recording?'var(--red)':'var(--border-2)', borderRadius:8, background: recording?'var(--red-bg)':'var(--bg-raised)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color: recording?'var(--red)':'var(--blue)', flexShrink:0 }}>
+          {recording ? <Square size={13} /> : <Mic size={15} />}
         </button>
         <textarea value={input} onChange={e=>setInput(e.target.value)}
           onKeyDown={e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();process()} }}

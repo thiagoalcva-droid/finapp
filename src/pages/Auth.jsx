@@ -36,7 +36,7 @@ export default function Auth() {
       <div style={{ width:'100%', maxWidth:400 }}>
         <div style={{ textAlign:'center', marginBottom:40 }}>
           <div style={{ fontSize:52, marginBottom:14 }}>💰</div>
-          <h1 style={{ fontSize:28, fontWeight:700, color:'var(--text-1)', letterSpacing:'-0.5px' }}>FinApp</h1>
+          <h1 style={{ fontSize:28, fontWeight:700, color:'var(--text-1)', letterSpacing:'-0.5px' }}>Casado Investing</h1>
           <p style={{ color:'var(--text-2)', marginTop:8, fontSize:14 }}>Organize suas finanças com inteligência artificial</p>
         </div>
 

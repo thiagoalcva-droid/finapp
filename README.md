@@ -1,6 +1,6 @@
-# 💰 FinApp — Finanças Inteligentes
+# 🪙 Casado Investing
 
-App de finanças pessoais com IA. Tema escuro: preto, branco e azul.
+App de finanças pessoais com IA — a marca do Casado. Tema escuro: preto, branco, azul e ouro.
 
 ## Funcionalidades
 

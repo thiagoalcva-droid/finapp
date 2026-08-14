@@ -39,7 +39,7 @@ export default function Agenda({ userId }) {
   const askPerm = async () => {
     const ok = await requestPermission()
     setPerm(ok ? 'granted':'denied')
-    if(ok) notify('FinApp — Notificações ativadas!','Você receberá alertas de compromissos e despesas.')
+    if(ok) notify('Casado Investing — Notificações ativadas!','Você receberá alertas de compromissos e despesas.')
   }
 
   const save = async (e) => {
