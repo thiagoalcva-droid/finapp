@@ -28,7 +28,7 @@ export default function ChatExtrato({ userId, txns, setTxns }) {
 
   const addMsg = async (role, text, image) => {
     setMsgs(prev => [...prev, { role, text, image }])
-    await saveMsg(userId, role, text).catch(() => {})
+    await saveMsg(userId, role, text, image).catch(() => {})
   }
 
   /* Salva automaticamente e resume o que foi feito */
@@ -182,6 +182,6 @@ export default function ChatExtrato({ userId, txns, setTxns }) {
 
 /* Helper de ícone (evita import circular) */
 function CAT_ICON(cat) {
-  const map = { 'Renda':'💰','Renda Extra':'💵','Moradia':'🏠','Saúde':'❤️','Serviços':'📡','Assinaturas':'📱','Alimentação':'🛒','Delivery':'🍔','Gasolina':'⛽','Transporte':'🚌','Vestuário':'👗','Lazer':'🎉','Outros':'📦' }
-  return map[cat] || '📦'
+  const map = { 'Renda':'💰','Renda Extra':'💵','Moradia':'🏠','Saúde':'❤️','Saude':'❤️','Serviços':'📡','Servicos':'📡','Assinaturas':'📱','Alimentação':'🛒','Alimentacao':'🛒','Delivery':'🍔','Gasolina':'⛽','Transporte':'🚌','Vestuário':'👗','Vestuario':'👗','Lazer':'🎉','Transferências':'🔄','Transferencias':'🔄','Saque':'🏧','Contas':'🧾','Investimentos':'📈','Taxas':'🏦','Pet':'🐾','Educação':'🎓','Educacao':'🎓','Presentes':'🎁','Outros':'📦' }
+  return map[cat] || '🔄'
 }

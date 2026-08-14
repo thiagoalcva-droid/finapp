@@ -47,25 +47,36 @@ REGRAS ABSOLUTAS:
 1. Responda APENAS com JSON valido - sem markdown, sem texto extra.
 2. Extraia CADA transacao individualmente.
 3. Agrupe transacoes do mesmo estabelecimento no mesmo dia.
+4. NUNCA use a categoria "Outros". SEMPRE encaixe em uma categoria que faca sentido pelo contexto.
 
 MAPEAMENTO DE CATEGORIAS:
-- SALARIO, PGTO, HOLERITE = Renda | FREELANCE, HONORARIO = Renda Extra
+- SALARIO, PGTO, HOLERITE = Renda | FREELANCE, HONORARIO, servicos prestados = Renda Extra
 - ALUGUEL, CONDOMINIO, IPTU, LUZ, ENERGIA, AGUA = Moradia
-- AMIL, UNIMED, HAPVIDA, DROGARIA, FARMACIA = Saude
-- VIVO, CLARO, TIM, INTERNET, FIBRA = Servicos
-- SPOTIFY, NETFLIX, PRIME, DISNEY, HBO, CANVA = Assinaturas
-- SUPERMERCADO, ATACADAO, CARREFOUR, ASSAI, MERCADO = Alimentacao
-- IFOOD, RAPPI, UBER EATS = Delivery
-- POSTO, SHELL, IPIRANGA, GASOLINA = Gasolina
-- UBER, 99APP, ONIBUS, METRO = Transporte
-- RENNER, RIACHUELO, SHEIN, ROUPA = Vestuario
-- CINEMA, BAR, RESTAURANTE, SHOW = Lazer
-- Outro = Outros
+- AMIL, UNIMED, HAPVIDA, DROGARIA, FARMACIA, hospital, clinica, dentista = Saude
+- VIVO, CLARO, TIM, INTERNET, FIBRA, telefone = Servicos
+- SPOTIFY, NETFLIX, PRIME, DISNEY, HBO, CANVA, apps de assinatura = Assinaturas
+- SUPERMERCADO, ATACADAO, CARREFOUR, ASSAI, MERCADO, padaria, acougue, feira = Alimentacao
+- IFOOD, RAPPI, UBER EATS, delivery de comida = Delivery
+- POSTO, SHELL, IPIRANGA, GASOLINA, combustivel = Gasolina
+- UBER, 99APP, ONIBUS, METRO, BRT, estacionamento = Transporte
+- RENNER, RIACHUELO, SHEIN, ROUPA, calcado, loja de roupa = Vestuario
+- CINEMA, BAR, RESTAURANTE, SHOW, viagem, hotel, festa = Lazer
+- PIX/TED/DOC enviado para PESSOA (nome de gente) = Transferencias
+- PIX/TED/DOC recebido de PESSOA (nome de gente) sem ser salario = Renda Extra
+- Saque, retirada de dinheiro = Saque
+- Boleto, fatura de cartao, emprestimo, financiamento = Contas
+- Investimento, aplicacao, tesouro, CDB = Investimentos
+- Taxa, tarifa bancaria, juros, IOF = Taxas
+- Pet, veterinario, petshop = Pet
+- Escola, faculdade, curso, livro = Educacao
+- Presente, doacao = Presentes
+
+REGRA DE OURO: Se nao encontrar correspondencia exata, escolha a categoria MAIS PROXIMA pelo contexto. Um PIX para pessoa fisica SEMPRE eh "Transferencias". Um recebimento de empresa SEMPRE eh "Renda" ou "Renda Extra". NUNCA deixe em "Outros".
 
 CLASSIFICACAO:
-- nec=true: aluguel, saude, mercado, servicos, transporte, renda
-- nec=false: delivery, lazer, assinaturas, vestuario
-- fixed=true: recorrente mensal (aluguel, assinaturas, planos, salario)
+- nec=true: aluguel, saude, mercado, servicos, transporte, renda, contas, educacao
+- nec=false: delivery, lazer, assinaturas, vestuario, presentes
+- fixed=true: recorrente mensal (aluguel, assinaturas, planos, salario, financiamento)
 - type: "in" (credito/recebido) ou "out" (debito/pago)
 - date padrao: ${new Date().toISOString().slice(0,10)}
 

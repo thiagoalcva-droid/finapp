@@ -40,10 +40,10 @@ export async function loadChat(userId) {
   const { data, error } = await supabase.from('chat_messages').select('*')
     .eq('user_id', userId).order('created_at').limit(80)
   if (error) return []
-  return data.map(r => ({ role:r.role, text:r.content }))
+  return data.map(r => ({ role:r.role, text:r.content, image:r.image_url || undefined }))
 }
-export async function saveMsg(userId, role, text) {
-  await supabase.from('chat_messages').insert({ user_id:userId, role, content:text })
+export async function saveMsg(userId, role, text, image) {
+  await supabase.from('chat_messages').insert({ user_id:userId, role, content:text, image_url:image || null })
 }
 
 /* AGENDA */
