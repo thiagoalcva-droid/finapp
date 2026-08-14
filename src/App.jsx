@@ -61,7 +61,7 @@ export default function App() {
   if(authLoad) return (
     <div style={{ minHeight:'100dvh', display:'flex', alignItems:'center', justifyContent:'center', background:'var(--bg)' }}>
       <div style={{ textAlign:'center' }}>
-        <div style={{ fontSize:44, marginBottom:14 }}>🪙</div>
+        <img src="/icon-192.png" alt="" style={{ width:56, height:56, borderRadius:14, marginBottom:14 }} />
         <div style={{ width:28, height:28, border:'2px solid var(--border-3)', borderTop:'2px solid #d4af37', borderRadius:'50%', animation:'spin 1s linear infinite', margin:'0 auto' }} />
       </div>
     </div>
@@ -123,7 +123,7 @@ export default function App() {
         </div>
       )}
 
-      <main style={{ flex:1, maxWidth:960, margin:'0 auto', width:'100%', padding:'1.5rem 20px 4rem' }}>
+      <main style={{ flex:1, maxWidth:960, margin:'0 auto', width:'100%', padding:'1.25rem max(16px, env(safe-area-inset-left)) calc(4rem + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-right))' }}>
         {txnLoad ? (
           <div style={{ display:'flex', alignItems:'center', gap:8, padding:'2rem 0', color:'var(--text-3)', fontSize:13 }}>
             <div style={{ width:6, height:6, borderRadius:'50%', background:'var(--text-3)', animation:'pulse-dot 1.2s infinite' }} />
