@@ -1,8 +1,9 @@
 import { useState, useEffect, useMemo } from 'react'
 import { MessageCircle } from 'lucide-react'
 import { supabase } from './lib/supabase'
-import { loadTransactions, clearAllTransactions } from './lib/api'
+import { loadTransactions, clearAllTransactions, loadOnboarding } from './lib/api'
 import Auth          from './pages/Auth'
+import Onboarding    from './pages/Onboarding'
 import Dashboard     from './pages/Dashboard'
 import ChatExtrato   from './pages/ChatExtrato'
 import Entradas      from './pages/Entradas'
@@ -52,6 +53,8 @@ export default function App() {
   const [month, setMonth]       = useState('todos')
   const [menuOpen, setMenuOpen] = useState(false)
   const [novaMetaId, setNovaMetaId] = useState(null)
+  const [onbLoad, setOnbLoad] = useState(true)
+  const [needsOnb, setNeedsOnb] = useState(false)
 
   const virarMeta = (goal) => {
     setNovaMetaId(goal.id)
@@ -68,6 +71,11 @@ export default function App() {
     if(!session?.user) { setTxns([]); return }
     setTxnLoad(true)
     loadTransactions(session.user.id).then(d=>setTxns(d)).catch(console.error).finally(()=>setTxnLoad(false))
+    // verifica onboarding
+    setOnbLoad(true)
+    loadOnboarding(session.user.id).then(ob => {
+      setNeedsOnb(!ob || !ob.completo)
+    }).catch(()=>setNeedsOnb(false)).finally(()=>setOnbLoad(false))
   },[session?.user?.id])
 
   const availableMonths = useMemo(() => {
@@ -102,6 +110,11 @@ export default function App() {
   if(!session) return <Auth />
 
   const user = session.user
+
+  // Mostra o quiz de onboarding se ainda não completou
+  if(!onbLoad && needsOnb) {
+    return <Onboarding userId={user.id} onDone={()=>{ setNeedsOnb(false); loadTransactions(user.id).then(setTxns).catch(()=>{}) }} />
+  }
   const name = user.user_metadata?.full_name?.split(' ')[0] || user.email.split('@')[0]
   const monthAware = ['dashboard','entradas','despesas','gastos','conselhos'].includes(tab)
   const isChat = tab === 'chat'

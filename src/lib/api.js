@@ -148,3 +148,16 @@ export async function saveDream(userId, dream) {
   if (error) throw error
   return data
 }
+
+/* ONBOARDING (quiz inicial) */
+export async function loadOnboarding(userId) {
+  const { data } = await supabase.from('onboarding').select('*').eq('user_id', userId).maybeSingle()
+  return data
+}
+export async function saveOnboarding(userId, ob) {
+  const { data, error } = await supabase.from('onboarding')
+    .upsert({ user_id:userId, ...ob, updated_at:new Date().toISOString() }, { onConflict:'user_id' })
+    .select().single()
+  if (error) throw error
+  return data
+}

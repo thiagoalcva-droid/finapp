@@ -23,7 +23,7 @@ export default function ChatExtrato({ userId, txns, setTxns }) {
   useEffect(() => {
     loadChat(userId).then(h => {
       if (h.length > 0) setMsgs(h)
-      else setMsgs([{ role:'ai', text:'Olá! Eu sou seu assistente financeiro. 🪙\n\nManda pra mim:\n\n💸 Suas transações — texto, foto 📷, PDF 📄 ou áudio 🎤\n📅 Seus compromissos — "tenho consulta dia 20 às 14h"\n\nEu registro tudo na hora e te aviso dos compromissos!' }])
+      else setMsgs([{ role:'ai', text:'Olá! Eu sou seu assistente financeiro. 🪙\n\nManda pra mim do jeito que for mais fácil:\n\n💸 Transações — texto, foto 📷, PDF 📄 ou áudio 🎤\n📅 Compromissos — "tenho consulta dia 20 às 14h"\n🎯 Aportes — "guardei 200 pra minha meta"\n\nRegistro tudo na hora, direto no seu painel. Bora organizar sua vida financeira juntos! 💪' }])
       setHistLoad(false)
     })
   }, [userId])
