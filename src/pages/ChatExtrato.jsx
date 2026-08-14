@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Mic, Paperclip, Square, Send } from 'lucide-react'
 import { callClaude, callClaudeVision, callClaudeDoc, EXTRATO_SYSTEM } from '../lib/claude'
-import { insertTransactions, insertEvent, loadChat, saveMsg } from '../lib/api'
+import { insertTransactions, insertEvent, loadChat, saveMsg, loadGoals, updateGoal } from '../lib/api'
 import { fmt, Bubble, Loader } from '../components/shared'
 
 export default function ChatExtrato({ userId, txns, setTxns }) {
@@ -41,13 +41,33 @@ export default function ChatExtrato({ userId, txns, setTxns }) {
   const registrar = async (data) => {
     const found  = data.transactions || []
     const events = data.events || []
+    const deposits = data.goal_deposits || []
 
-    if (found.length === 0 && events.length === 0) {
+    if (found.length === 0 && events.length === 0 && deposits.length === 0) {
       await addMsg('ai', 'Não consegui identificar nenhuma transação ou compromisso. Pode me dizer de novo? Ex: "gastei 50 no mercado" ou "tenho consulta dia 20 às 14h".')
       return
     }
 
     let resumo = ''
+
+    // Depósitos em meta/sonho
+    if (deposits.length > 0) {
+      const goals = await loadGoals(userId).catch(()=>[])
+      for (const dep of deposits) {
+        const hint = (dep.goal_hint||'').toLowerCase()
+        const goal = goals.find(g => g.name.toLowerCase().includes(hint) || hint.includes(g.name.toLowerCase())) || goals[0]
+        if (goal) {
+          const novo = Math.min(+goal.current_amount + dep.amt, +goal.target_amount)
+          await updateGoal(goal.id, { current_amount:novo }).catch(()=>{})
+          const saved = await insertTransactions(userId, [{ date:new Date().toISOString().slice(0,10), desc:`Guardado para: ${goal.name}`, amt:dep.amt, type:'out', cat:'Meta', nec:true, fixed:false }]).catch(()=>[])
+          setTxns(prev => [...prev, ...saved])
+          const p = Math.round((novo/+goal.target_amount)*100)
+          resumo += `🎯 Guardei ${fmt(dep.amt)} na sua meta "${goal.name}"! Você já está com ${p}% do caminho. Bora! 💪\n`
+        } else {
+          resumo += `Você não tem uma meta criada ainda. Cria uma na aba Metas ou no Meu Sonho que aí eu registro seus aportes! 🌟\n`
+        }
+      }
+    }
 
     if (found.length > 0) {
       try {

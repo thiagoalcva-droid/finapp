@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Plus, Trash2, X, TrendingUp } from 'lucide-react'
-import { loadGoals, insertGoal, updateGoal, deleteGoal } from '../lib/api'
+import { loadGoals, insertGoal, updateGoal, deleteGoal, insertTransactions } from '../lib/api'
 import { fmt, pct, Card, CardTitle, Loader, Note } from '../components/shared'
 
 const ICONS = ['🎯','🏠','🚗','✈️','💍','📱','🎓','🏖️','💰','🛡️']
@@ -12,7 +12,7 @@ function monthsLeft(deadline) {
   return Math.max(0, Math.round(diff / (30.44*24*60*60*1000)))
 }
 
-export default function Metas({ userId, txns, destaqueId }) {
+export default function Metas({ userId, txns, setTxns, destaqueId }) {
   const [goals, setGoals]     = useState([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -45,6 +45,15 @@ export default function Metas({ userId, txns, destaqueId }) {
     await updateGoal(g.id,{ current_amount:novo }).catch(()=>{})
     setGoals(prev=>prev.map(x=>x.id===g.id?{...x,current_amount:novo}:x))
     setAddAmt(prev=>({...prev,[g.id]:''}))
+    // Registra como SAÍDA no Dashboard (dinheiro reservado, categoria Meta)
+    try {
+      const saved = await insertTransactions(userId, [{
+        date: new Date().toISOString().slice(0,10),
+        desc: `Guardado para: ${g.name}`,
+        amt: v, type:'out', cat:'Meta', nec:true, fixed:false,
+      }])
+      if (setTxns) setTxns(prev=>[...prev, ...saved])
+    } catch(_){}
   }
 
   const remove = async (id) => {

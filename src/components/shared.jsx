@@ -20,6 +20,8 @@ export const CAT = {
   'Saque':          { icon: '🏧', color: '#EA580C', bg: 'rgba(234,88,12,.10)'   },
   'Contas':         { icon: '🧾', color: '#E02424', bg: 'rgba(224,36,36,.09)'   },
   'Investimentos':  { icon: '📈', color: '#0E9F6E', bg: 'rgba(14,159,110,.12)'  },
+  'Meta':           { icon: '🎯', color: '#EC6E00', bg: 'rgba(236,110,0,.10)'   },
+  'Sonho':          { icon: '🌟', color: '#EC6E00', bg: 'rgba(236,110,0,.10)'   },
   'Taxas':          { icon: '🏦', color: '#64748B', bg: 'rgba(100,116,139,.10)' },
   'Pet':            { icon: '🐾', color: '#D97706', bg: 'rgba(217,119,6,.12)'   },
   'Educação':       { icon: '🎓', color: '#4F46E5', bg: 'rgba(79,70,229,.10)'   },

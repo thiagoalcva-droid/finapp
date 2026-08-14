@@ -63,9 +63,11 @@ REGRAS ABSOLUTAS:
 5. Se a mensagem mencionar compromisso, reuniao, consulta, encontro, evento com data/hora, extraia como event.
 
 FORMATO DA RESPOSTA:
-{"transactions":[{"date":"YYYY-MM-DD","desc":"descricao limpa","amt":numero,"type":"in|out","cat":"categoria","nec":bool,"fixed":bool}],"events":[{"title":"titulo do compromisso","event_date":"YYYY-MM-DDTHH:MM:00","reminder_minutes":180}]}
+{"transactions":[{"date":"YYYY-MM-DD","desc":"descricao limpa","amt":numero,"type":"in|out","cat":"categoria","nec":bool,"fixed":bool}],"events":[{"title":"titulo do compromisso","event_date":"YYYY-MM-DDTHH:MM:00","reminder_minutes":180}],"goal_deposits":[{"goal_hint":"nome do sonho/meta que a pessoa mencionou","amt":numero}]}
 
-Se nao houver transacoes, "transactions":[]. Se nao houver compromissos, "events":[].
+Se nao houver transacoes, "transactions":[]. Se nao houver compromissos, "events":[]. Se nao houver deposito de meta, "goal_deposits":[].
+
+REGRA DE META/SONHO: Se a pessoa disser algo como "guardei 200 pra minha meta", "separei 300 pro meu sonho da moto", "investi 150 no meu objetivo", isso vai em goal_deposits (NAO em transactions - o app cria a saida automaticamente). Capte o valor e uma dica do nome da meta.
 
 REGRAS DE EVENTS:
 - "amanha" = calcule a partir de ${new Date().toISOString().slice(0,10)} (hoje). Dias da semana: proximo dia correspondente.

@@ -90,7 +90,7 @@ export default function Despesas({ txns, setTxns, onClearAll }) {
       </div>
 
       <Card>
-        <CardTitle>Todas as transações ({outTxns.length})</CardTitle>
+        <CardTitle>Retiradas do período ({outTxns.length})</CardTitle>
         {outTxns.length===0 ? (
           <div style={{ textAlign:'center', padding:'2rem', color:'var(--text-3)', fontSize:13 }}>
             Nenhuma transação. Use o Chat para adicionar.

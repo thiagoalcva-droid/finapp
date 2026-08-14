@@ -7,6 +7,7 @@ import Dashboard     from './pages/Dashboard'
 import ChatExtrato   from './pages/ChatExtrato'
 import Entradas      from './pages/Entradas'
 import Despesas      from './pages/Despesas'
+import DespesasFixas from './pages/DespesasFixas'
 import GastosAnalise from './pages/GastosAnalise'
 import Metas         from './pages/Metas'
 import Investir      from './pages/Investir'
@@ -23,7 +24,8 @@ const MENU = [
   ]},
   { group: 'TRANSAÇÕES', items: [
     { id:'entradas',  icon:'💚', label:'Entradas' },
-    { id:'despesas',  icon:'💳', label:'Despesas' },
+    { id:'despesas',  icon:'💳', label:'Retiradas' },
+    { id:'fixas',     icon:'🧾', label:'Despesas fixas' },
     { id:'gastos',    icon:'🔍', label:'Para onde vai meu dinheiro' },
   ]},
   { group: 'MEU FUTURO', items: [
@@ -195,8 +197,9 @@ export default function App() {
               {tab==='chat'      && <ChatExtrato userId={user.id} txns={txns} setTxns={setTxns} />}
               {tab==='entradas'  && <Entradas txns={filteredTxns} setTxns={setTxns} onClearAll={clearAll} />}
               {tab==='despesas'  && <Despesas txns={filteredTxns} setTxns={setTxns} onClearAll={clearAll} />}
+              {tab==='fixas'     && <DespesasFixas userId={user.id} />}
               {tab==='gastos'    && <GastosAnalise txns={filteredTxns} setTxns={setTxns} />}
-              {tab==='metas'     && <Metas userId={user.id} txns={txns} destaqueId={novaMetaId} />}
+              {tab==='metas'     && <Metas userId={user.id} txns={txns} setTxns={setTxns} destaqueId={novaMetaId} />}
               {tab==='investir'  && <Investir userId={user.id} txns={txns} />}
               {tab==='sonho'     && <Sonho userId={user.id} onVirarMeta={virarMeta} />}
               {tab==='alertas'   && <Alertas userId={user.id} />}

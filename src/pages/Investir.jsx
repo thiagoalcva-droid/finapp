@@ -30,6 +30,7 @@ export default function Investir({ userId, txns }) {
   const [targetYear, setTargetYear] = useState(new Date().getFullYear()+10)
   const [planRate, setPlanRate]   = useState(12)
   const [aiPlan, setAiPlan]       = useState(null)
+  const [planOpen, setPlanOpen]   = useState(true)
   const [aiLoading, setAiLoading] = useState(false)
 
   const totalIn  = txns.filter(t=>t.type==='in').reduce((s,t)=>s+t.amt,0)
@@ -104,33 +105,37 @@ export default function Investir({ userId, txns }) {
           <div style={{ width:42, height:42, borderRadius:12, background:'rgba(212,175,55,.15)', border:'1px solid rgba(212,175,55,.4)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:20 }}>👑</div>
           <div>
             <div style={{ fontSize:17, fontWeight:700, color:'#f5d67a' }}>Quero Ficar Milionário</div>
-            <div style={{ fontSize:12, color:'var(--text-2)' }}>Escolha o ano e receba seu plano de ação personalizado</div>
+            <div style={{ fontSize:12, color:'rgba(255,255,255,.7)' }}>Seu plano para ter R$ 1 milhão na conta</div>
           </div>
+        </div>
+
+        <div style={{ background:'rgba(255,255,255,.08)', borderRadius:10, padding:'12px 14px', marginBottom:14, fontSize:12.5, color:'rgba(255,255,255,.85)', lineHeight:1.5 }}>
+          💡 O <strong>Quero Ficar Milionário</strong> é seu guia para juntar <strong>R$ 1 milhão</strong> de saldo disponível. Escolhe até quando quer chegar lá, e eu calculo quanto você precisa investir por mês e monto seu plano.
         </div>
 
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:14 }}>
           <div>
-            <label style={{ fontSize:11, color:'var(--text-2)', display:'block', marginBottom:5 }}>Milionário até o ano</label>
+            <label style={{ fontSize:11, color:'rgba(255,255,255,.7)', display:'block', marginBottom:5 }}>Milionário até o ano</label>
             <select value={targetYear} onChange={e=>setTargetYear(+e.target.value)} style={{ ...inp, marginBottom:0, cursor:'pointer' }}>
               {Array.from({length:26},(_,i)=>new Date().getFullYear()+5+i).map(y=><option key={y} value={y}>{y} ({y-new Date().getFullYear()} anos)</option>)}
             </select>
           </div>
           <div>
-            <label style={{ fontSize:11, color:'var(--text-2)', display:'block', marginBottom:5 }}>Rentabilidade anual</label>
+            <label style={{ fontSize:11, color:'rgba(255,255,255,.7)', display:'block', marginBottom:5 }}>Perfil de investimento</label>
             <select value={planRate} onChange={e=>setPlanRate(+e.target.value)} style={{ ...inp, marginBottom:0, cursor:'pointer' }}>
-              <option value={8}>8% a.a. (conservador)</option>
-              <option value={10}>10% a.a. (Tesouro/CDB)</option>
-              <option value={12}>12% a.a. (moderado)</option>
-              <option value={15}>15% a.a. (arrojado)</option>
+              <option value={8}>Conservador (8% a.a.)</option>
+              <option value={10}>Tesouro/CDB (10% a.a.)</option>
+              <option value={12}>Moderado (12% a.a.)</option>
+              <option value={15}>Arrojado (15% a.a.)</option>
             </select>
           </div>
         </div>
 
         <div style={{ background:'rgba(0,0,0,.4)', borderRadius:12, padding:'16px', marginBottom:14, textAlign:'center' }}>
-          <div style={{ fontSize:11, color:'var(--text-2)', textTransform:'uppercase', letterSpacing:'.08em', marginBottom:6 }}>Você precisa investir por mês</div>
+          <div style={{ fontSize:11, color:'rgba(255,255,255,.7)', textTransform:'uppercase', letterSpacing:'.08em', marginBottom:6 }}>Você precisa investir por mês</div>
           <div style={{ fontSize:32, fontWeight:700, fontFamily:"'JetBrains Mono',monospace", color:'#f5d67a' }}>{fmt(reqMonthly)}</div>
-          <div style={{ fontSize:12, marginTop:6, color: viable?'var(--green)':'var(--red)' }}>
-            {totalIn===0 ? 'Adicione transações para ver a viabilidade'
+          <div style={{ fontSize:12, marginTop:6, color: viable?'#5EEAD4':'#FFB4B4' }}>
+            {totalIn===0 ? 'Registre suas transações para ver a viabilidade'
               : viable ? `✓ Viável! É ${pct(reqMonthly,totalIn)}% da sua renda (sobra ${fmt(leftover)}/mês)`
               : `⚠ Acima da sua sobra atual de ${fmt(leftover)}/mês — o plano vai mostrar onde cortar`}
           </div>
@@ -142,8 +147,16 @@ export default function Investir({ userId, txns }) {
         </button>
 
         {aiPlan && (
-          <div style={{ marginTop:14, background:'rgba(0,0,0,.35)', border:'1px solid rgba(212,175,55,.2)', borderRadius:12, padding:'16px', fontSize:13, lineHeight:1.8, color:'#F0F2F8', whiteSpace:'pre-wrap' }}>
-            {aiPlan}
+          <div style={{ marginTop:14 }}>
+            <button onClick={()=>setPlanOpen(!planOpen)} style={{ width:'100%', display:'flex', alignItems:'center', justifyContent:'space-between', background:'rgba(255,255,255,.08)', border:'none', borderRadius:10, padding:'10px 14px', cursor:'pointer', fontFamily:'inherit' }}>
+              <span style={{ fontSize:13, fontWeight:600, color:'#f5d67a' }}>📋 Seu plano de ação</span>
+              <span style={{ fontSize:12, color:'rgba(255,255,255,.7)' }}>{planOpen ? 'Ver menos ▲' : 'Ver mais ▼'}</span>
+            </button>
+            {planOpen && (
+              <div style={{ marginTop:10, background:'rgba(0,0,0,.35)', border:'1px solid rgba(212,175,55,.2)', borderRadius:12, padding:'16px', fontSize:13, lineHeight:1.8, color:'#F0F2F8', whiteSpace:'pre-wrap' }}>
+                {aiPlan}
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -173,13 +186,15 @@ export default function Investir({ userId, txns }) {
         <Card>
           <CardTitle>Novo investimento</CardTitle>
           <form onSubmit={save}>
-            <input style={inp} type="text" placeholder="Nome (ex: Tesouro Selic, CDB Nubank)" value={form.name} onChange={e=>setForm(p=>({...p,name:e.target.value}))} required />
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:10 }}>
-              <input style={inp} type="number" placeholder="Aporte/mês (R$)" value={form.monthly_amount} onChange={e=>setForm(p=>({...p,monthly_amount:e.target.value}))} required min="0" step="0.01" />
-              <input style={inp} type="number" placeholder="Já aplicado (R$)" value={form.initial_amount} onChange={e=>setForm(p=>({...p,initial_amount:e.target.value}))} min="0" step="0.01" />
-              <input style={inp} type="number" placeholder="Taxa % a.a." value={form.annual_rate} onChange={e=>setForm(p=>({...p,annual_rate:e.target.value}))} min="0" step="0.1" />
-            </div>
-            <button type="submit" disabled={saving} style={{ width:'100%', height:42, background:'var(--blue)', color:'#fff', border:'none', borderRadius:10, fontSize:13, fontWeight:600, cursor:'pointer' }}>
+            <label style={{ fontSize:11, color:'var(--text-2)', display:'block', marginBottom:5 }}>Nome do investimento</label>
+            <input style={inp} type="text" placeholder="Ex: Tesouro Selic, CDB Nubank" value={form.name} onChange={e=>setForm(p=>({...p,name:e.target.value}))} required />
+            <label style={{ fontSize:11, color:'var(--text-2)', display:'block', marginBottom:5 }}>Quanto você investe por mês? <span style={{color:'var(--text-3)'}}>(aporte mensal)</span></label>
+            <input style={inp} type="number" placeholder="Ex: 300" value={form.monthly_amount} onChange={e=>setForm(p=>({...p,monthly_amount:e.target.value}))} required min="0" step="0.01" />
+            <label style={{ fontSize:11, color:'var(--text-2)', display:'block', marginBottom:5 }}>Você já tem algum valor investido? <span style={{color:'var(--text-3)'}}>(se não, deixe 0)</span></label>
+            <input style={inp} type="number" placeholder="Ex: 0" value={form.initial_amount} onChange={e=>setForm(p=>({...p,initial_amount:e.target.value}))} min="0" step="0.01" />
+            <label style={{ fontSize:11, color:'var(--text-2)', display:'block', marginBottom:5 }}>Rendimento anual estimado <span style={{color:'var(--text-3)'}}>(% ao ano)</span></label>
+            <input style={inp} type="number" placeholder="Ex: 12" value={form.annual_rate} onChange={e=>setForm(p=>({...p,annual_rate:e.target.value}))} min="0" step="0.1" />
+            <button type="submit" disabled={saving} style={{ width:'100%', height:44, background:'var(--blue)', color:'#fff', border:'none', borderRadius:10, fontSize:14, fontWeight:600, cursor:'pointer', marginTop:4 }}>
               {saving?'Salvando...':'Adicionar'}
             </button>
           </form>

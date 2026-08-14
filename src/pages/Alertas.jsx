@@ -93,6 +93,7 @@ export default function Alertas({ userId }) {
 
   return (
     <div>
+      <Note>Aqui ficam suas <strong>contas e assinaturas</strong> — Netflix, Spotify, luz, água, internet, aluguel... Cadastre com o dia de vencimento e <strong>te avisamos antes de vencer</strong>, pra você nunca mais pagar juros por esquecimento. 🔔</Note>
       {perm !== 'granted' && (
         <div style={{ background:'var(--amber-bg)', border:'1px solid var(--amber-border)', borderRadius:10, padding:'12px 16px', marginBottom:'1rem', display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, flexWrap:'wrap' }}>
           <span style={{ fontSize:13, color:'var(--amber)', fontWeight:500 }}>⚠️ Ative as notificações para receber os alertas de vencimento.</span>

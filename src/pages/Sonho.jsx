@@ -133,13 +133,8 @@ export default function Sonho({ userId, onVirarMeta }) {
           </div>
         </div>
 
-        <Card>
-          <CardTitle><Sparkles size={13}/> Seu plano personalizado</CardTitle>
-          <div style={{ fontSize:14, lineHeight:1.8, color:'var(--text-1)', whiteSpace:'pre-wrap' }}>{result.plano}</div>
-        </Card>
-
-        {/* CTA emocional para virar meta */}
-        <div style={{ background:'var(--blue-bg)', border:'1px solid var(--blue-border)', borderRadius:16, padding:'1.5rem', textAlign:'center', marginTop:8 }}>
+        {/* CTA emocional para virar meta — PRIMEIRO */}
+        <div style={{ background:'var(--blue-bg)', border:'1px solid var(--blue-border)', borderRadius:16, padding:'1.5rem', textAlign:'center', marginBottom:12 }}>
           <div style={{ fontSize:15, fontWeight:700, color:'var(--text-1)', marginBottom:8 }}>
             Isso não é mais um sonho distante. É uma <span style={{color:'var(--blue)'}}>meta breve</span>! 🎯
           </div>
@@ -150,6 +145,12 @@ export default function Sonho({ userId, onVirarMeta }) {
             {virando ? 'Criando sua meta...' : <><Check size={18}/> Sim, quero começar agora!</>}
           </button>
         </div>
+
+        {/* Plano — DEPOIS */}
+        <Card>
+          <CardTitle><Sparkles size={13}/> Seu plano personalizado</CardTitle>
+          <div style={{ fontSize:14, lineHeight:1.8, color:'var(--text-1)', whiteSpace:'pre-wrap' }}>{result.plano}</div>
+        </Card>
 
         <button onClick={refazer} style={{ width:'100%', height:42, marginTop:10, background:'var(--bg-raised)', color:'var(--text-2)', border:'1px solid var(--border-2)', borderRadius:10, fontSize:13, fontWeight:600, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:8, fontFamily:'inherit' }}>
           <RefreshCw size={14}/> Refazer com outro sonho
